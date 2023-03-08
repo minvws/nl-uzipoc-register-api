@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 @router.post("/get-uzi-by-exchange")
 def get_uzi_by_exchange(
-        exchange_request: ExchangeRequest,
-        request: Request,
-        service: Service = Depends(lambda: service_)
+    exchange_request: ExchangeRequest,
+    request: Request,
+    service: Service = Depends(lambda: service_),
 ):
     return service.handle_request(request, exchange_request)

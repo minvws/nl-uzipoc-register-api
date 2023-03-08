@@ -3,7 +3,6 @@ import logging
 
 import uvicorn
 from fastapi import FastAPI
-from starlette.staticfiles import StaticFiles
 
 from app.router import router
 
@@ -12,7 +11,9 @@ def run_app():
     config = configparser.ConfigParser()
     config.read("app.conf")
 
-    loglevel = logging.getLevelName(config.get("app", "loglevel", fallback="debug").upper())
+    loglevel = logging.getLevelName(
+        config.get("app", "loglevel", fallback="debug").upper()
+    )
     if isinstance(loglevel, str):
         raise ValueError(f"Invalid loglevel {loglevel.upper()}")
     logging.basicConfig(
