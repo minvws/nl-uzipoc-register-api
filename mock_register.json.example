@@ -1,0 +1,16 @@
+{
+    "999991772": {
+        "loa_uzi": "substantial",
+        "uzi_id": "999991772",
+        "initials": "A.B.",
+        "surname_prefix": "der",
+        "surname": "See",
+        "relations": [
+            {
+                "ura": "87654321",
+                "entity_name": "Zorgaanbieder",
+                "roles": ["01.041", "30.000", "01.010", "01.011"]
+            }
+        ]
+    }
+}

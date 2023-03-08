@@ -1,0 +1,10 @@
+__pycache__
+.fleet
+app.egg-info
+.venv
+*.conf
+*.json
+*.bak
+*.crt
+*.key
+*.pub
