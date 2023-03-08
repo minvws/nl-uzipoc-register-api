@@ -31,9 +31,10 @@ register_ = _load_json_file(config.get("app", "register_path"))
 
 service_ = Service(
     issuer=issuer,
+    audience=audience,
     jwt_sign_priv_key=jwt_sign_priv_key,
     jwt_sign_crt_path=jwt_sign_crt_path,
     jwt_request_issuer_pub_key=jwt_request_issuer_pub_key,
     irma_controller_result_url=irma_controller_result_url,
-    register=register_,
+    register=register_
 )

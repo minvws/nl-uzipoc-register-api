@@ -22,10 +22,12 @@ setup(
             "uvicorn",
             "pylint",
             "bandit",
+            "mypy",
             "autoflake",
             "coverage",
             "coverage-badge",
             "pytest",
+            "types-requests"
         ]
     },
 )

@@ -62,8 +62,12 @@ lazy-object-proxy==1.9.0
     # via astroid
 mccabe==0.7.0
     # via pylint
+mypy==1.1.1
+    # via app (setup.py)
 mypy-extensions==1.0.0
-    # via black
+    # via
+    #   black
+    #   mypy
 packaging==23.0
     # via
     #   black
@@ -106,6 +110,7 @@ tomli==2.0.1
     # via
     #   autoflake
     #   black
+    #   mypy
     #   pylint
     #   pytest
 tomlkit==0.11.6
@@ -114,6 +119,7 @@ typing-extensions==4.5.0
     # via
     #   astroid
     #   black
+    #   mypy
     #   pydantic
     #   pylint
     #   starlette
