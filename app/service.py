@@ -21,6 +21,7 @@ class Service:
     def __init__(
         self,
         issuer: str,
+        audience: str,
         jwt_sign_priv_key: JWK,
         jwt_sign_crt_path: JWK,
         jwt_request_issuer_pub_key: JWK,
@@ -28,6 +29,7 @@ class Service:
         register: Dict[str, Any],
     ):
         self._issuer = issuer
+        self._audience = audience
         self._jwt_sign_priv_key = jwt_sign_priv_key
         self._jwt_sign_crt_path = jwt_sign_crt_path
         self._jwt_request_issuer_pub_key = jwt_request_issuer_pub_key
@@ -83,6 +85,7 @@ class Service:
         jwt_payload["req_iss"] = self._issuer
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims["loa_authn"]
+        jwt_payload["aud"] = self._audience
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
         )

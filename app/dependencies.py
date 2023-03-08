@@ -18,6 +18,7 @@ def _load_json_file(path: str) -> Dict[str, Any]:
 
 
 issuer = config.get("app", "issuer")
+audience = config.get("app", "audience")
 
 jwt_sign_priv_key = _load_jwk(config.get("app", "jwt_sign_priv_key_path"))
 jwt_sign_crt_path = _load_jwk(config.get("app", "jwt_sign_crt_path"))

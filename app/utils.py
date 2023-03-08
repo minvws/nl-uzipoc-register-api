@@ -27,7 +27,6 @@ def create_jwe(
     }
     jwt_payload = {
         **{
-            "aud": "cibg",
             "nbf": int(time.time()) - 10,
             "exp": int(time.time()) + 60,
         },
