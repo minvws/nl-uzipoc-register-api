@@ -1,1 +1,8 @@
-Auto-generated README for nl-uzipoc-register-api
+# setup
+```bash
+make setup
+```
+# run
+```bash
+make run
+```

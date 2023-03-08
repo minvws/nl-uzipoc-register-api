@@ -1,0 +1,19 @@
+[app]
+config = value
+
+[uvicorn]
+# The host to be running on
+host = 0.0.0.0
+port = 8002
+
+# Are we running in debug mode? turns on auto-reload on code changes
+reload = True
+workers = 1
+
+# Should we create an SSL connection through uvicorn?
+use_ssl = False
+
+# Setting for the SSL connection when enabled, defined by the use_ssl setting.
+base_dir = secrets/ssl
+cert_file = server.crt
+key_file = server.key
