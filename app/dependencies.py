@@ -36,5 +36,5 @@ service_ = Service(
     jwt_sign_crt_path=jwt_sign_crt_path,
     jwt_request_issuer_pub_key=jwt_request_issuer_pub_key,
     irma_controller_result_url=irma_controller_result_url,
-    register=register_
+    register=register_,
 )
