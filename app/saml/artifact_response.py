@@ -21,25 +21,31 @@ from lxml import etree
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from packaging.version import Version
 
-from app.saml.utils import NAMESPACES, CAMEL_TO_SNAKE_RE, remove_padding, SECTOR_CODES, SectorNumber
+from app.saml.utils import (
+    NAMESPACES,
+    CAMEL_TO_SNAKE_RE,
+    remove_padding,
+    SECTOR_CODES,
+    SectorNumber,
+)
 
 
 # pylint: disable=too-many-instance-attributes, too-many-public-methods
 class ArtifactResponse:
     def __init__(  # pylint: disable=too-many-arguments
-            self,
-            artifact_response_str,
-            artifact_tree,
-            cluster_priv_key: Optional[str],
-            priv_key: str,
-            expected_entity_id: str,
-            expected_service_uuid: str,
-            expected_response_destination: str,
-            sp_metadata,
-            idp_metadata,
-            saml_specification_version: Union[Version],
-            is_verified: bool,
-            strict: bool,
+        self,
+        artifact_response_str,
+        artifact_tree,
+        cluster_priv_key: Optional[str],
+        priv_key: str,
+        expected_entity_id: str,
+        expected_service_uuid: str,
+        expected_response_destination: str,
+        sp_metadata,
+        idp_metadata,
+        saml_specification_version: Union[Version],
+        is_verified: bool,
+        strict: bool,
     ) -> None:
         self.artifact_response_str = artifact_response_str
         self.response_expires_in = 60
@@ -179,20 +185,20 @@ class ArtifactResponse:
     @cached_property
     def assertion_subject_confdata(self):
         return self.assertion_subject.find(
-    ".//saml:SubjectConfirmationData", NAMESPACES
-    )
+            ".//saml:SubjectConfirmationData", NAMESPACES
+        )
 
     @cached_property
     def assertion_subject_audrestriction(self):
         return self.response_assertion.find(
-    "./saml:Conditions//saml:Audience", NAMESPACES
-    )
+            "./saml:Conditions//saml:Audience", NAMESPACES
+        )
 
     def raise_for_status(self) -> str:
         if self.status != "saml_success":
             raise Exception(
-        "User authentication flow failed: oauth_error:%s", self.status
-        )
+                "User authentication flow failed: oauth_error:%s", self.status
+            )
 
         return self.status
 
@@ -218,7 +224,8 @@ class ArtifactResponse:
                 Exception(
                     "Invalid audience in response Conditions. Expected %s,"
                     "but was %s",
-                    expected_entity_id, response_conditions_aud.text
+                    expected_entity_id,
+                    response_conditions_aud.text,
                 )
             )
 
@@ -435,8 +442,8 @@ class ArtifactResponse:
             else:
                 if authorization_by_proxy:
                     raise ValueError(
-                "Expected LegalSubjectID in the attributes, but was not found."
-                )
+                        "Expected LegalSubjectID in the attributes, but was not found."
+                    )
                 bsn_element = self.attributes["urn:nl-eid-gdi:1.0:ActingSubjectID"]
         else:
             bsn_element = self._plaintext_bsn()

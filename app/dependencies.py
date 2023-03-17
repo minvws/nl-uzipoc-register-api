@@ -1,15 +1,14 @@
 import json
 from typing import Dict, Any
 
-from jinja2 import Environment
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from jwcrypto.jwk import JWK
+from packaging.version import parse as version_parse
 
 from app.config import config
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
 from app.service import Service
-from packaging.version import parse as version_parse
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 def _load_jwk(path: str) -> JWK:
@@ -49,14 +48,15 @@ saml_sp_metadata_ = SPMetadata(
         saml_sp_settings_.get("cert_path"),
         saml_sp_settings_.get("key_path"),
     ),
-    saml_jinja_env_)
+    saml_jinja_env_,
+)
 
 artifact_response_factory_ = ArtifactResponseFactory(
     cluster_key=None,
     priv_key_path=(saml_sp_settings_.get("key_path", None)),
     expected_service_uuid=saml_sp_settings_["attributeConsumingService"][
-                "requestedAttributes"
-            ][0]["attributeValue"][0],
+        "requestedAttributes"
+    ][0]["attributeValue"][0],
     expected_response_destination=saml_sp_settings_["assertionConsumerService"].get(
         "url"
     ),

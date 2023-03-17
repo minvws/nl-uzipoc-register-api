@@ -40,18 +40,21 @@ def remove_padding(enc_data: bytes) -> bytes:
 
 
 def has_valid_signature(
-        root,
-        signature_node,
-        cert_data: Union[str, None] = None,
-        cert_path: Union[str, None] = None,
+    root,
+    signature_node,
+    cert_data: Union[str, None] = None,
+    cert_path: Union[str, None] = None,
 ):
     # Create a digital signature context (no key manager is needed).
     ctx = xmlsec.SignatureContext()
 
-    if cert_data is None:
+    if cert_data is not None:
+        key = xmlsec.Key.from_memory(cert_data, xmlsec.constants.KeyDataFormatCertPem)
+    elif cert_path is not None:
         key = xmlsec.Key.from_file(cert_path, xmlsec.constants.KeyDataFormatCertPem)
     else:
-        key = xmlsec.Key.from_memory(cert_data, xmlsec.constants.KeyDataFormatCertPem)
+        raise ValueError("cert_data or cert_path should be given")
+
     # Set the key on the context.
     ctx.key = key
     ctx.register_id(root)
@@ -83,9 +86,9 @@ def is_advice_node(node: etree.Element, advice_nodes: List[etree.Element]):
 
 
 def has_valid_signatures(
-        root: etree,
-        cert_data: Union[str, None] = None,
-        cert_path: Union[str, None] = None,
+    root: etree,
+    cert_data: Union[str, None] = None,
+    cert_path: Union[str, None] = None,
 ) -> Tuple[Any, bool]:
     signature_nodes: List[etree.Element] = root.findall(".//dsig:Signature", NAMESPACES)
     advice_nodes: List[etree.Element] = root.findall(".//saml2:Advice", NAMESPACES)

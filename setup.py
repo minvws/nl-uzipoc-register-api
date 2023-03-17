@@ -33,7 +33,8 @@ setup(
             "coverage",
             "coverage-badge",
             "pytest",
-            "types-requests"
+            "types-requests",
+            "types-python-dateutil"
         ]
     },
 )

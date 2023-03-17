@@ -12,7 +12,7 @@ from app.saml.utils import (
     compute_keyname,
     enforce_cert_newlines,
     NAMESPACES,
-    strip_cert
+    strip_cert,
 )
 from app.saml.saml_request import SAMLRequest
 

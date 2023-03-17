@@ -3,16 +3,15 @@ import logging
 from typing import Dict, Any
 
 import requests
+from fastapi import HTTPException
 from fastapi import Request
 from fastapi.security.utils import get_authorization_scheme_param
 from jwcrypto.jwk import JWK
 from jwcrypto.jws import InvalidJWSObject
 from jwcrypto.jwt import JWT
 from starlette.responses import Response
-from fastapi import HTTPException
 
 from app.exceptions import UnauthorizedError
-from app.exchange_request import ExchangeRequest
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert, create_jwe
 
@@ -71,7 +70,7 @@ class Service:
             )
         return irma_response.json()
 
-    def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, any]):
+    def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
         jwt_payload["req_iss"] = self._issuer
@@ -86,10 +85,7 @@ class Service:
         }
         return Response(headers=headers)
 
-    def handle_exchange_request(
-        self,
-        request: Request
-    ):
+    def handle_exchange_request(self, request: Request):
         claims = self._get_request_claims(request)
         irma_response_json = self._fetch_irma_result(claims.get("exchange_token", ""))
 
@@ -107,12 +103,14 @@ class Service:
         return self._create_response(jwt_payload, claims)
 
     async def handle_saml_request(
-            self,
-            request: Request,
+        self,
+        request: Request,
     ):
         claims = self._get_request_claims(request)
         saml_message = await request.body()
-        artifact_response = self._artifact_response_factory.from_string(saml_message.decode("utf-8"))
+        artifact_response = self._artifact_response_factory.from_string(
+            saml_message.decode("utf-8")
+        )
         if claims["saml-id"] != artifact_response.root.attrib["ID"]:
             raise HTTPException(status_code=403, detail="Saml-id's dont match")
         bsn = artifact_response.get_bsn(False)
