@@ -21,8 +21,8 @@ def _load_json_file(path: str) -> Dict[str, Any]:
         return json.loads(file.read())
 
 
-issuer = config.get("app", "issuer")
-audience = config.get("app", "audience")
+expected_issuer = config.get("app", "expected_issuer")
+expected_audience = config.get("app", "expected_audience")
 
 jwt_sign_priv_key = _load_jwk(config.get("app", "jwt_sign_priv_key_path"))
 jwt_sign_crt_path = _load_jwk(config.get("app", "jwt_sign_crt_path"))
@@ -72,8 +72,8 @@ artifact_response_factory_ = ArtifactResponseFactory(
 
 service_ = Service(
     artifact_response_factory=artifact_response_factory_,
-    issuer=issuer,
-    audience=audience,
+    expected_issuer=expected_issuer,
+    expected_audience=expected_audience,
     jwt_sign_priv_key=jwt_sign_priv_key,
     jwt_sign_crt_path=jwt_sign_crt_path,
     jwt_request_issuer_pub_key=jwt_request_issuer_pub_key,

@@ -22,8 +22,8 @@ class Service:
     def __init__(
         self,
         artifact_response_factory: ArtifactResponseFactory,
-        issuer: str,
-        audience: str,
+        expected_issuer: str,
+        expected_audience: str,
         jwt_sign_priv_key: JWK,
         jwt_sign_crt_path: JWK,
         jwt_request_issuer_pub_key: JWK,
@@ -31,8 +31,8 @@ class Service:
         register: Dict[str, Any],
     ):
         self._artifact_response_factory = artifact_response_factory
-        self._issuer = issuer
-        self._audience = audience
+        self._expected_issuer = expected_issuer
+        self._expected_audience = expected_audience
         self._jwt_sign_priv_key = jwt_sign_priv_key
         self._jwt_sign_crt_path = jwt_sign_crt_path
         self._jwt_request_issuer_pub_key = jwt_request_issuer_pub_key
@@ -48,7 +48,14 @@ class Service:
             )
             if scheme.lower() != "bearer":
                 raise UnauthorizedError(f"Invalid scheme {scheme}, expected bearer")
-            request_jwt = JWT(jwt=raw_jwt, key=self._jwt_request_issuer_pub_key)
+            request_jwt = JWT(
+                jwt=raw_jwt,
+                key=self._jwt_request_issuer_pub_key,
+                check_claims={
+                    "iss": self._expected_issuer,
+                    "aud": self._expected_audience,
+                },
+            )
             return (
                 json.loads(request_jwt.claims)
                 if isinstance(request_jwt.claims, str)
@@ -73,10 +80,13 @@ class Service:
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
-        jwt_payload["req_iss"] = self._issuer
+        if "req_iss" in claims:
+            jwt_payload["iss"] = claims["req_iss"]
+        if "req_aud" in claims:
+            jwt_payload["aud"] = claims["req_aud"]
+
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims["loa_authn"]
-        jwt_payload["aud"] = self._audience
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
         )
@@ -94,12 +104,11 @@ class Service:
             if self._register[bsn]["uzi_id"] == irma_response_json["uziId"]:
                 jwt_payload = self._register[bsn]
                 break
-        jwt_payload["relations"] = [
-            r
-            for r in jwt_payload["relations"]
-            if r["ura"] == irma_response_json["uziId"]
-        ]
-
+        if claims["ura"] != "*":
+            allowed_uras = claims["ura"].split(",")
+            jwt_payload["relations"] = [
+                r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
+            ]
         return self._create_response(jwt_payload, claims)
 
     async def handle_saml_request(
@@ -114,4 +123,11 @@ class Service:
         if claims["saml-id"] != artifact_response.root.attrib["ID"]:
             raise HTTPException(status_code=403, detail="Saml-id's dont match")
         bsn = artifact_response.get_bsn(False)
-        return self._create_response(self._register.get(bsn, {}), claims)
+
+        jwt_payload = self._register.get(bsn, {})
+        if claims["ura"] != "*":
+            allowed_uras = claims["ura"].split(",")
+            jwt_payload["relations"] = [
+                r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
+            ]
+        return self._create_response(jwt_payload, claims)

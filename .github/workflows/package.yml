@@ -18,7 +18,7 @@ jobs:
         run: ls -alR
 
       - name: Create tar
-        run: tar -czf ${{ github.event.repository.name }}_${{ env.RELEASE_VERSION }}.tar.gz ./app
+        run: tar -czf ${{ github.event.repository.name }}_${{ env.RELEASE_VERSION }}.tar.gz ./app ./saml
 
       - name: Upload release tar
         uses: actions/upload-artifact@v1
