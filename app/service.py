@@ -3,6 +3,7 @@ import logging
 from typing import Dict, Any
 
 import requests
+from fastapi import HTTPException
 from fastapi import Request
 from fastapi.security.utils import get_authorization_scheme_param
 from jwcrypto.jwk import JWK
@@ -11,7 +12,7 @@ from jwcrypto.jwt import JWT
 from starlette.responses import Response
 
 from app.exceptions import UnauthorizedError
-from app.exchange_request import ExchangeRequest
+from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert, create_jwe
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 class Service:
     def __init__(
         self,
+        artifact_response_factory: ArtifactResponseFactory,
         issuer: str,
         audience: str,
         jwt_sign_priv_key: JWK,
@@ -28,6 +30,7 @@ class Service:
         irma_controller_result_url: str,
         register: Dict[str, Any],
     ):
+        self._artifact_response_factory = artifact_response_factory
         self._issuer = issuer
         self._audience = audience
         self._jwt_sign_priv_key = jwt_sign_priv_key
@@ -67,21 +70,9 @@ class Service:
             )
         return irma_response.json()
 
-    def handle_request(
-        self,
-        request: Request,
-        exchange_request: ExchangeRequest,
-    ):
-        claims = self._get_request_claims(request)
+    def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
-        irma_response_json = self._fetch_irma_result(exchange_request.exchange_token)
 
-        jwt_payload = self._register[irma_response_json["uziId"]]
-        jwt_payload["relations"] = [
-            r
-            for r in jwt_payload["relations"]
-            if r["ura"] == irma_response_json["uziId"]
-        ]
         jwt_payload["req_iss"] = self._issuer
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims["loa_authn"]
@@ -93,3 +84,34 @@ class Service:
             "Authorization": f"Bearer {jwe_token}",
         }
         return Response(headers=headers)
+
+    def handle_exchange_request(self, request: Request):
+        claims = self._get_request_claims(request)
+        irma_response_json = self._fetch_irma_result(claims.get("exchange_token", ""))
+
+        jwt_payload = {}
+        for bsn in self._register:
+            if self._register[bsn]["uzi_id"] == irma_response_json["uziId"]:
+                jwt_payload = self._register[bsn]
+                break
+        jwt_payload["relations"] = [
+            r
+            for r in jwt_payload["relations"]
+            if r["ura"] == irma_response_json["uziId"]
+        ]
+
+        return self._create_response(jwt_payload, claims)
+
+    async def handle_saml_request(
+        self,
+        request: Request,
+    ):
+        claims = self._get_request_claims(request)
+        saml_message = await request.body()
+        artifact_response = self._artifact_response_factory.from_string(
+            saml_message.decode("utf-8")
+        )
+        if claims["saml-id"] != artifact_response.root.attrib["ID"]:
+            raise HTTPException(status_code=403, detail="Saml-id's dont match")
+        bsn = artifact_response.get_bsn(False)
+        return self._create_response(self._register.get(bsn, {}), claims)

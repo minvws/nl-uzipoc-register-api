@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" ID="_da39a3ee5e6b4b0d3255bfef95601890afd80709" entityID="urn:nl-eid-gdi:1.0:RD:00000004000000149000:entities:9002" validUntil="2023-09-29T10:00:00Z"><dsig:Signature Id="Id-0001668757324854-ffffffff9aeb2e95-1"><dsig:SignedInfo><dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><dsig:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><dsig:Reference URI="#_da39a3ee5e6b4b0d3255bfef95601890afd80709"><dsig:Transforms><dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></dsig:Transforms><dsig:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><dsig:DigestValue>8vWugRvVMr2ZM447qMo89HCdFiJebXKlrRJ2c2gOLNI=</dsig:DigestValue></dsig:Reference></dsig:SignedInfo><dsig:SignatureValue>mvCKdsnECRsN5bWUdCF901JgaaB3Kj2s1r8etJ/gcopRX+diqVs0nSl9knw5J8V0
+7WNm+b5FXI1ztTmHL+e1UqmbNUhh7vNc7wE/LoH4e8r04wFfZDjmbSpFTeJpxaea
+qLLN+zhRuh/PzBds7bNDfY3QjqwLqftqNIQEJSpAlnBh7i9yXmhyHfhz1gTFKjYp
+4hHBamuJld9h+XMxJWbQqz9rWGwkxxSgVBYbf0cVvx2lsubZiyy4afPS0/9ACGIY
+VQowIjI4N17kryEoYMxCeIhVG+X+2dInfx5BVm1hj0O/UzdAtHUZtS84poSJxPIU
+BJBlMpWfW6c3cxSHYzoM/A==</dsig:SignatureValue><dsig:KeyInfo Id="Id-0001668757324854-ffffffff9aeb2e95-2"><dsig:KeyName>08c229fce24eb6a3abf303dc630971aff9b0f029</dsig:KeyName></dsig:KeyInfo></dsig:Signature><md:IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"><md:KeyDescriptor use="signing"><dsig:KeyInfo><dsig:KeyName>08c229fce24eb6a3abf303dc630971aff9b0f029</dsig:KeyName><dsig:X509Data><dsig:X509Certificate>MIIHFjCCBP6gAwIBAgIUE2K+ofTvTPtazCtrszh0A8d+SrAwDQYJKoZIhvcNAQEL
+BQAwgYAxCzAJBgNVBAYTAk5MMSAwHgYDVQQKDBdRdW9WYWRpcyBUcnVzdGxpbmsg
+Qi5WLjEXMBUGA1UEYQwOTlRSTkwtMzAyMzc0NTkxNjA0BgNVBAMMLVF1b1ZhZGlz
+IFBLSW92ZXJoZWlkIFByaXZhdGUgU2VydmljZXMgQ0EgLSBHMTAeFw0yMjA5Mjkx
+MDU1NDZaFw0yMzA5MjkxMDUwMDBaMHMxCzAJBgNVBAYTAk5MMR4wHAYDVQQKDBVE
+aWVuc3QgSUNUIFVpdHZvZXJpbmcxHTAbBgNVBAUTFDAwMDAwMDA0MDAwMDAwMTQ5
+MDAwMSUwIwYDVQQDDBxwcmVwcm9kLXNhbWwtdHZzLXJkLmRpY3R1Lm5sMIIBIjAN
+BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5ZYmN7yLRTRE+ZiivrJBwhPmBXIZ
+xOA3iXKzW1FZa6GjgWhR38Ptoy3Hxo31UsqZnEIbOgIUXTBpI1HBZmz545w55fdD
+62WuKlw5lfyEz1UEh72lQzGYtpqW3MvPqnmUDGEAH+uWL4slODG0rbmVPlXGK9eC
+fQtYjZU93YYANcTAddds64+2aHXdOI489fM0R91vkowa4hZRR3j4CjA6kbAWwTtA
+e4ztHVdJhtQxgAkJhgoyUMT1OFWEQOGATzsI7UASViLrJbovJ35s/NK3b9A+T0F6
+NmAnkAXJPppMD1PnYMTALWRRDo8QPNa2Q6iWNlDUoDs3N5IvKIuj5KaFwQIDAQAB
+o4ICkjCCAo4wHwYDVR0jBBgwFoAUuWymE7q7LzRjgzEu+X5JHd8A9WMwfQYIKwYB
+BQUHAQEEcTBvMD4GCCsGAQUFBzAChjJodHRwOi8vdHJ1c3QucXVvdmFkaXNnbG9i
+YWwuY29tL3BraW9wcml2c2VydmcxLmNydDAtBggrBgEFBQcwAYYhaHR0cDovL3Ns
+Lm9jc3AucXVvdmFkaXNnbG9iYWwuY29tMCcGA1UdEQQgMB6CHHByZXByb2Qtc2Ft
+bC10dnMtcmQuZGljdHUubmwwggEwBgNVHSAEggEnMIIBIzCCAR8GCmCEEAGHawEC
+CAYwggEPMDQGCCsGAQUFBwIBFihodHRwOi8vd3d3LnF1b3ZhZGlzZ2xvYmFsLmNv
+bS9yZXBvc2l0b3J5MIHWBggrBgEFBQcCAjCByQyBxlJlbGlhbmNlIG9uIHRoaXMg
+Y2VydGlmaWNhdGUgYnkgYW55IHBhcnR5IGFzc3VtZXMgYWNjZXB0YW5jZSBvZiB0
+aGUgcmVsZXZhbnQgUXVvVmFkaXMgQ2VydGlmaWNhdGlvbiBQcmFjdGljZSBTdGF0
+ZW1lbnQgYW5kIG90aGVyIGRvY3VtZW50cyBpbiB0aGUgUXVvVmFkaXMgcmVwb3Np
+dG9yeSAoaHR0cDovL3d3dy5xdW92YWRpc2dsb2JhbC5jb20pLjAdBgNVHSUEFjAU
+BggrBgEFBQcDAgYIKwYBBQUHAwEwQQYDVR0fBDowODA2oDSgMoYwaHR0cDovL2Ny
+bC5xdW92YWRpc2dsb2JhbC5jb20vcGtpb3ByaXZzZXJ2ZzEuY3JsMB0GA1UdDgQW
+BBR1chdu6fMECD0dPEFZD9SNspy4rzAOBgNVHQ8BAf8EBAMCBaAwDQYJKoZIhvcN
+AQELBQADggIBAEk39ITS71sxzqFHT7T+Fy125RULA+DWgbeUMZDBEUTHXaBe9N23
+tac6pwT3xVi2W5Tqhhk7zVze33TKAms/ZCuJaKQFClrDlqjm2WinTe04v2KY/xCl
+qr7/3VQMqUSsrrDon70NGkLsi/hMH9hEPfBDYE8/oyNIPkM7JbcSDrsqAR9A3goR
+6PUdmDYmHbJd7ftjK2P6l1TjlXsEsQ0kbgAI5J/b4cjntpnX6nHiC4JbZYJorbwG
+8TK5XH8IyL8vFBImv9qrZP5XbW/7f4t2ENypjsFeQMxLhLYutSEi9uV1E7eiZreb
+ePjYc6CM7/nnYYUiixiA8jN+O5WKkYaFUZVVTaX28EUwMjAV57mU6Bpw/er5CeBc
+ItPd7GMyBvC4q1sOopPgPJdJHV8oKBo370W82h+dWag32J0tir8I2DtPdubHNCHX
+S0RoNYhDgfFkO5nTERzy/4kSUMcbPnPUyVc3hZWB8s5oTnl5HMWT8a7mN2KMbIli
+ysnjyoOPpEtn35wb0dr5Lq0iRz8nsI7mHDTGKUC0tktAsTdcq+uP3toVb2Xg7gZt
+mSP/oTvyX1rxdh2l19E3BmfMcTcL5sQX0nu7zTovAwGpeFSTitYmbZXUh+WCzaf3
+WqK+B3lerVrp4si9u7E5trcQA0ve6as18yoryLIIjSxs2JzV6Nf5CRk1
+</dsig:X509Certificate></dsig:X509Data></dsig:KeyInfo></md:KeyDescriptor><md:ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://artifact-pp2.toegang.overheid.nl/kvs/rd/resolve_artifact" index="0"/><md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://pp2.toegang.overheid.nl/kvs/rd/request_logout"/><md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://pp2.toegang.overheid.nl/kvs/rd/request_authentication"/></md:IDPSSODescriptor></md:EntityDescriptor>

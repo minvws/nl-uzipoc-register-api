@@ -6,7 +6,13 @@ requirements = [
     "fastapi",
     "requests",
     "jwcrypto",
-    "python-multipart"
+    "python-multipart",
+    "python3-saml",
+    "pycryptodomex",
+    "python-dateutil",
+    "xmlsec",
+    "pyOpenSSL",
+    "jinja2"
 ]
 
 setup(
@@ -27,7 +33,8 @@ setup(
             "coverage",
             "coverage-badge",
             "pytest",
-            "types-requests"
+            "types-requests",
+            "types-python-dateutil"
         ]
     },
 )
