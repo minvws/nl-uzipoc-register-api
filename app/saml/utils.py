@@ -101,7 +101,6 @@ def has_valid_signatures(
                 referred_node, node, cert_data=cert_data, cert_path=cert_path
             )
         except xmlsec.VerificationError:
-            print("invalid!")
             return None, False
 
     return get_referred_node(root, signature_nodes[0]), True
