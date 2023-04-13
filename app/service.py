@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from typing import Dict, Any
 
 import requests
@@ -27,7 +28,7 @@ class Service:
         jwt_sign_priv_key: JWK,
         jwt_sign_crt_path: JWK,
         jwt_request_issuer_pub_key: JWK,
-        irma_controller_result_url: str,
+        irma_controller_session_url: str,
         register: Dict[str, Any],
     ):
         self._artifact_response_factory = artifact_response_factory
@@ -36,7 +37,7 @@ class Service:
         self._jwt_sign_priv_key = jwt_sign_priv_key
         self._jwt_sign_crt_path = jwt_sign_crt_path
         self._jwt_request_issuer_pub_key = jwt_request_issuer_pub_key
-        self._irma_controller_result_url = irma_controller_result_url
+        self._irma_controller_session_url = irma_controller_session_url
         self._register = register
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
@@ -54,6 +55,8 @@ class Service:
                 check_claims={
                     "iss": self._expected_issuer,
                     "aud": self._expected_audience,
+                    "exp": time.time(),
+                    "nbf": time.time()
                 },
             )
             return (
@@ -69,7 +72,7 @@ class Service:
 
     def _fetch_irma_result(self, exchange_token: str) -> Any:
         irma_response = requests.get(
-            f"{self._irma_controller_result_url}/{exchange_token}", timeout=60
+            f"{self._irma_controller_session_url}/{exchange_token}/result", timeout=60
         )
         if irma_response.status_code >= 400:
             raise UnauthorizedError(
@@ -123,7 +126,6 @@ class Service:
         if claims["saml-id"] != artifact_response.root.attrib["ID"]:
             raise HTTPException(status_code=403, detail="Saml-id's dont match")
         bsn = artifact_response.get_bsn(False)
-
         jwt_payload = self._register.get(bsn, {})
         if claims["ura"] != "*":
             allowed_uras = claims["ura"].split(",")
