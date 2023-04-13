@@ -56,7 +56,7 @@ class Service:
                     "iss": self._expected_issuer,
                     "aud": self._expected_audience,
                     "exp": time.time(),
-                    "nbf": time.time()
+                    "nbf": time.time(),
                 },
             )
             return (
