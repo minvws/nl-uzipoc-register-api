@@ -71,8 +71,6 @@ class Service:
             raise UnauthorizedError("Invalid jwt received") from invalid_jws_object
 
     def _fetch_irma_result(self, exchange_token: str) -> Any:
-        print("hier!!!!!")
-        print(self._irma_controller_session_url)
         irma_response = requests.get(
             f"{self._irma_controller_session_url}/{exchange_token}/result", timeout=60
         )
@@ -110,7 +108,7 @@ class Service:
 
         jwt_payload = {}
         for bsn in self._register:
-            if self._register[bsn]["uzi_id"] == irma_response_json["uziId"]:
+            if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
                 break
         if claims["ura"] != "*":
