@@ -29,7 +29,7 @@ jwt_sign_crt_path = _load_jwk(config.get("app", "jwt_sign_crt_path"))
 
 jwt_request_issuer_pub_key = _load_jwk(config.get("app", "jwt_request_issuer_pub_key"))
 
-irma_controller_result_url = config.get("app", "irma_controller_result_url")
+irma_controller_session_url = config.get("app", "irma_controller_session_url")
 
 register_ = _load_json_file(config.get("app", "register_path"))
 
@@ -77,6 +77,6 @@ service_ = Service(
     jwt_sign_priv_key=jwt_sign_priv_key,
     jwt_sign_crt_path=jwt_sign_crt_path,
     jwt_request_issuer_pub_key=jwt_request_issuer_pub_key,
-    irma_controller_result_url=irma_controller_result_url,
+    irma_controller_session_url=irma_controller_session_url,
     register=register_,
 )
