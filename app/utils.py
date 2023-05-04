@@ -32,6 +32,8 @@ def create_jwe(
         },
         **payload,
     }
+    print("jwt_payload")
+    print(jwt_payload)
     jwt_token = JWT(
         header=jwt_header,
         claims=jwt_payload,

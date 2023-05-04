@@ -27,7 +27,7 @@ class Service:
         jwt_sign_priv_key: JWK,
         jwt_sign_crt_path: JWK,
         jwt_request_issuer_pub_key: JWK,
-        irma_controller_result_url: str,
+        irma_controller_session_url: str,
         register: Dict[str, Any],
     ):
         self._artifact_response_factory = artifact_response_factory
@@ -36,7 +36,7 @@ class Service:
         self._jwt_sign_priv_key = jwt_sign_priv_key
         self._jwt_sign_crt_path = jwt_sign_crt_path
         self._jwt_request_issuer_pub_key = jwt_request_issuer_pub_key
-        self._irma_controller_result_url = irma_controller_result_url
+        self._irma_controller_session_url = irma_controller_session_url
         self._register = register
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
@@ -68,8 +68,10 @@ class Service:
             raise UnauthorizedError("Invalid jwt received") from invalid_jws_object
 
     def _fetch_irma_result(self, exchange_token: str) -> Any:
+        print("hier!!!!!")
+        print(self._irma_controller_session_url)
         irma_response = requests.get(
-            f"{self._irma_controller_result_url}/{exchange_token}", timeout=60
+            f"{self._irma_controller_session_url}/{exchange_token}/result", timeout=60
         )
         if irma_response.status_code >= 400:
             raise UnauthorizedError(
@@ -80,13 +82,17 @@ class Service:
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
+        jwt_payload["x5c"] = claims["x5c"]
+
         if "req_iss" in claims:
             jwt_payload["iss"] = claims["req_iss"]
         if "req_aud" in claims:
             jwt_payload["aud"] = claims["req_aud"]
+        if "req_acme_token" in claims:
+            jwt_payload["acme_token"] = claims["req_acme_token"]
+        if "loa_authn" in claims:
+            jwt_payload["loa_authn"] = claims["loa_authn"]
 
-        jwt_payload["x5c"] = claims["x5c"]
-        jwt_payload["loa_authn"] = claims["loa_authn"]
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
         )
@@ -120,10 +126,9 @@ class Service:
         artifact_response = self._artifact_response_factory.from_string(
             saml_message.decode("utf-8")
         )
-        if claims["saml-id"] != artifact_response.root.attrib["ID"]:
-            raise HTTPException(status_code=403, detail="Saml-id's dont match")
+        if claims["saml_id"] != artifact_response.root.attrib["ID"]:
+            raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
-
         jwt_payload = self._register.get(bsn, {})
         if claims["ura"] != "*":
             allowed_uras = claims["ura"].split(",")

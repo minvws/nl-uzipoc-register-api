@@ -7,7 +7,7 @@ jwt_sign_crt_path = secrets/jwt_sign.crt
 
 jwt_request_issuer_pub_key = secrets/jwt_sign.pub
 
-irma_controller_result_url = http://localhost:8001/result
+irma_controller_session_url = http://localhost:8001/session
 
 register_path = mock_register.json
 
