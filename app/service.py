@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from typing import Dict, Any
 
 import requests
@@ -54,6 +55,8 @@ class Service:
                 check_claims={
                     "iss": self._expected_issuer,
                     "aud": self._expected_audience,
+                    "exp": time.time(),
+                    "nbf": time.time(),
                 },
             )
             return (
