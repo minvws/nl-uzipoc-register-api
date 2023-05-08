@@ -83,13 +83,17 @@ class Service:
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
+        jwt_payload["x5c"] = claims["x5c"]
+
         if "req_iss" in claims:
             jwt_payload["iss"] = claims["req_iss"]
         if "req_aud" in claims:
             jwt_payload["aud"] = claims["req_aud"]
+        if "req_acme_token" in claims:
+            jwt_payload["acme_token"] = claims["req_acme_token"]
+        if "loa_authn" in claims:
+            jwt_payload["loa_authn"] = claims["loa_authn"]
 
-        jwt_payload["x5c"] = claims["x5c"]
-        jwt_payload["loa_authn"] = claims["loa_authn"]
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
         )
@@ -104,7 +108,7 @@ class Service:
 
         jwt_payload = {}
         for bsn in self._register:
-            if self._register[bsn]["uzi_id"] == irma_response_json["uziId"]:
+            if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
                 break
         if claims["ura"] != "*":
@@ -123,8 +127,8 @@ class Service:
         artifact_response = self._artifact_response_factory.from_string(
             saml_message.decode("utf-8")
         )
-        if claims["saml-id"] != artifact_response.root.attrib["ID"]:
-            raise HTTPException(status_code=403, detail="Saml-id's dont match")
+        if claims["saml_id"] != artifact_response.root.attrib["ID"]:
+            raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
         jwt_payload = self._register.get(bsn, {})
         if claims["ura"] != "*":
