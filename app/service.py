@@ -111,7 +111,8 @@ class Service:
             if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
                 break
-        if claims["ura"] != "*":
+
+        if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
             jwt_payload["relations"] = [
                 r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
