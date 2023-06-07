@@ -9,3 +9,4 @@ app.egg-info
 *.crt
 *.key
 *.pub
+secrets/

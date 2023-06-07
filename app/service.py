@@ -27,8 +27,8 @@ class Service:
         expected_audience: str,
         jwt_sign_priv_key: JWK,
         jwt_sign_crt_path: JWK,
-        jwt_request_issuer_pub_key: JWK,
-        irma_controller_session_url: str,
+        max_crt_path: JWK,
+        login_controller_session_url: str,
         register: Dict[str, Any],
     ):
         self._artifact_response_factory = artifact_response_factory
@@ -36,8 +36,8 @@ class Service:
         self._expected_audience = expected_audience
         self._jwt_sign_priv_key = jwt_sign_priv_key
         self._jwt_sign_crt_path = jwt_sign_crt_path
-        self._jwt_request_issuer_pub_key = jwt_request_issuer_pub_key
-        self._irma_controller_session_url = irma_controller_session_url
+        self._max_crt_path = max_crt_path
+        self._login_controller_session_url = login_controller_session_url
         self._register = register
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
@@ -51,7 +51,7 @@ class Service:
                 raise UnauthorizedError(f"Invalid scheme {scheme}, expected bearer")
             request_jwt = JWT(
                 jwt=raw_jwt,
-                key=self._jwt_request_issuer_pub_key,
+                key=self._max_crt_path,
                 check_claims={
                     "iss": self._expected_issuer,
                     "aud": self._expected_audience,
@@ -72,7 +72,7 @@ class Service:
 
     def _fetch_irma_result(self, exchange_token: str) -> Any:
         irma_response = requests.get(
-            f"{self._irma_controller_session_url}/{exchange_token}/result", timeout=60
+            f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
         )
         if irma_response.status_code >= 400:
             raise UnauthorizedError(
@@ -111,7 +111,8 @@ class Service:
             if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
                 break
-
+        if not jwt_payload:
+            print(f"Unable to find uzi_id in register for uzi_id: {irma_response_json['uzi_id']}")
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
             jwt_payload["relations"] = [

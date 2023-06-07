@@ -25,6 +25,7 @@ pip-sync: ## synchronizes the .venv with the state of requirements.txt
 setup: venv
 	cp app.conf.example app.conf
 	cp mock_register.json.example mock_register.json
+	./setup-secrets.sh
 
 lint:
 	. .venv/bin/activate && ${env} pylint app
