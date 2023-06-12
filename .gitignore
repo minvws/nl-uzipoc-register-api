@@ -9,3 +9,5 @@ app.egg-info
 *.crt
 *.key
 *.pub
+secrets/
+.DS_Store
