@@ -112,7 +112,9 @@ class Service:
                 jwt_payload = self._register[bsn]
                 break
         if not jwt_payload:
-            print(f"Unable to find uzi_id in register for uzi_id: {irma_response_json['uzi_id']}")
+            print(
+                f"Unable to find uzi_id in register for uzi_id: {irma_response_json['uzi_id']}"
+            )
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
             jwt_payload["relations"] = [

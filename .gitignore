@@ -10,3 +10,4 @@ app.egg-info
 *.key
 *.pub
 secrets/
+.DS_Store
