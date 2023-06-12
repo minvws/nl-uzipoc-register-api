@@ -26,6 +26,7 @@ create_key_pair () {
 ###
  # Create ca for local selfsigned certificates
 ###
+mkdir -p secrets
 if [[ ! -f $SECRETS_DIR/cacert.crt ]]; then
   openssl genrsa -out $SECRETS_DIR/cacert.key 4096
 	openssl req -x509 -new -nodes -sha256 -days 1024 \
