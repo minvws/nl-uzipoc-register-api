@@ -95,7 +95,9 @@ class Service:
             jwt_payload["loa_authn"] = claims["loa_authn"]
 
         jwt_payload["x5c"] = claims["x5c"]
-        jwt_payload["loa_authn"] = claims.get("loa_authn", jwt_payload.get("loa_authn", None))
+        jwt_payload["loa_authn"] = claims.get(
+            "loa_authn", jwt_payload.get("loa_authn", None)
+        )
 
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
