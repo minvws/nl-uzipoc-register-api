@@ -1,15 +1,18 @@
 [app]
-issuer = issuer
-audience = audience
+expected_issuer = expected_issuer
+expected_audience = expected_audience
 
-jwt_sign_priv_key_path = secrets/jwt_sign.key
-jwt_sign_crt_path = secrets/jwt_sign.crt
+jwt_sign_priv_key_path = secrets/nl-uzipoc-register-api.key
+jwt_sign_crt_path = secrets/nl-uzipoc-register-api.crt
 
-jwt_request_issuer_pub_key = secrets/jwt_sign.pub
-
-irma_controller_result_url = http://localhost:8001/result
+max_crt_path = secrets/nl-rdo-max-private.crt
+login_controller_session_url = http://localhost:8001/session
 
 register_path = mock_register.json
+
+[saml]
+xml_templates_path = saml/templates/xml
+sp_settings_path = saml/idp/settings.json
 
 [uvicorn]
 # The host to be running on

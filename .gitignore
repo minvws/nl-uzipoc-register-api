@@ -1,5 +1,6 @@
 __pycache__
 .fleet
+.idea
 app.egg-info
 .venv
 *.conf
@@ -8,3 +9,6 @@ app.egg-info
 *.crt
 *.key
 *.pub
+
+secrets/
+.DS_Store
