@@ -25,6 +25,7 @@ pip-sync: ## synchronizes the .venv with the state of requirements.txt
 setup: venv
 	cp app.conf.example app.conf
 	cp mock_register.json.example mock_register.json
+	cp saml/idp/settings.json.example saml/idp/settings.json
 	./setup-secrets.sh
 
 lint:
