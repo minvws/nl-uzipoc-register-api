@@ -16,9 +16,9 @@
     "900020108": {
         "loa_uzi": "substantial",
         "uzi_id": "900020108",
-        "initials": "A.B.",
-        "surname_prefix": "der",
-        "surname": "See",
+        "initials": null,
+        "surname_prefix": null,
+        "surname": null,
         "relations": [
             {
                 "ura": "87654321",
