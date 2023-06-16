@@ -1,80 +1,30 @@
 {
-   "900022868":{
-      "loa_uzi":"substantial",
-      "uzi_id":"900022868",
-      "initials":"A.B.",
-      "surname_prefix":"der",
-      "surname":"See",
-      "relations":[
-         {
-            "ura":"87654321",
-            "entity_name":"Zorgaanbieder",
-            "roles":[
-               "01.041",
-               "30.000",
-               "01.010",
-               "01.011"
-            ]
-         }
-      ]
-   },
-   "900022632":{
-      "loa_uzi":"substantial",
-      "uzi_id":"900022632",
-      "initials":null,
-      "surname_prefix":null,
-      "surname":null,
-      "relations":[
-         {
-            "ura":"87654321",
-            "entity_name":"Zorgaanbieder",
-            "roles":[
-               "01.041",
-               "30.000",
-               "01.010",
-               "01.011"
-            ]
-         }
-      ]
-   },
-   {
-      "999991772":{
-         "loa_uzi":"substantial",
-         "uzi_id":"999991772",
-         "initials":"A.B.",
-         "surname_prefix":"der",
-         "surname":"See",
-         "relations":[
+    "999991772": {
+        "loa_uzi": "substantial",
+        "uzi_id": "999991772",
+        "initials": "A.B.",
+        "surname_prefix": "der",
+        "surname": "See",
+        "relations": [
             {
-               "ura":"87654321",
-               "entity_name":"Zorgaanbieder",
-               "roles":[
-                  "01.041",
-                  "30.000",
-                  "01.010",
-                  "01.011"
-               ]
+                "ura": "87654321",
+                "entity_name": "Zorgaanbieder",
+                "roles": ["01.041", "30.000", "01.010", "01.011"]
             }
-         ]
-      },
-      "900020108":{
-         "loa_uzi":"substantial",
-         "uzi_id":"900020108",
-         "initials":"A.B.",
-         "surname_prefix":"der",
-         "surname":"See",
-         "relations":[
+        ]
+    },
+    "900020108": {
+        "loa_uzi": "substantial",
+        "uzi_id": "900020108",
+        "initials": null,
+        "surname_prefix": null,
+        "surname": null,
+        "relations": [
             {
-               "ura":"87654321",
-               "entity_name":"Zorgaanbieder",
-               "roles":[
-                  "01.041",
-                  "30.000",
-                  "01.010",
-                  "01.011"
-               ]
+                "ura": "87654321",
+                "entity_name": "Zorgaanbieder",
+                "roles": ["01.041", "30.000", "01.010", "01.011"]
             }
-         ]
-      }
-   }
+        ]
+    }
 }
