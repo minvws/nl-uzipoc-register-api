@@ -1,6 +1,7 @@
 {
     "999991772": {
         "loa_uzi": "http://eidas.europa.eu/LoA/substantial",
+        "loa_authn": "http://eidas.europa.eu/LoA/substantial",
         "uzi_id": "999991772",
         "initials": "A.B.",
         "surname_prefix": "der",
@@ -15,6 +16,7 @@
     },
     "900020108": {
         "loa_uzi": "http://eidas.europa.eu/LoA/substantial",
+        "loa_authn": "http://eidas.europa.eu/LoA/substantial",
         "uzi_id": "900020108",
         "initials": "A.B.",
         "surname_prefix": "der",
