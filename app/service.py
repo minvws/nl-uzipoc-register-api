@@ -94,6 +94,11 @@ class Service:
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
 
+        jwt_payload["x5c"] = claims["x5c"]
+        jwt_payload["loa_authn"] = claims.get(
+            "loa_authn", jwt_payload.get("loa_authn", None)
+        )
+
         jwe_token = create_jwe(
             self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
         )
@@ -110,6 +115,7 @@ class Service:
         for bsn in self._register:
             if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
+                jwt_payload["loa_authn"] = irma_response_json["loa_authn"]
                 break
         if not jwt_payload:
             print(
