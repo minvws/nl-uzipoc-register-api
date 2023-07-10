@@ -25,7 +25,7 @@ expected_issuer = config.get("app", "expected_issuer")
 expected_audience = config.get("app", "expected_audience")
 
 jwt_sign_priv_key = _load_jwk(config.get("app", "jwt_sign_priv_key_path"))
-jwt_sign_crt_path = _load_jwk(config.get("app", "jwt_sign_crt_path"))
+jwt_sign_crt_path = config.get("app", "jwt_sign_crt_path")
 
 max_crt_path = _load_jwk(config.get("app", "max_crt_path"))
 
