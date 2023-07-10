@@ -1,10 +1,35 @@
 import time
-from typing import Dict, Any
+import base64
+from os import path
+from typing import Dict, Any, Union
 
 from cryptography.hazmat.primitives import hashes
 from cryptography.x509 import load_pem_x509_certificate
+from Cryptodome.Hash import SHA256
+from Cryptodome.IO import PEM
 from jwcrypto.jwk import JWK
 from jwcrypto.jwt import JWT
+
+
+def file_content_raise_if_none(filepath: str) -> str:
+    optional_file_content = file_content(filepath)
+    if optional_file_content is None:
+        raise ValueError(f"file_content for {filepath} shouldn't be None")
+    return optional_file_content
+
+
+def file_content(filepath: str) -> Union[str, None]:
+    if filepath is not None and path.exists(filepath):
+        with open(filepath, "r", encoding="utf-8") as file:
+            return file.read()
+    return None
+
+
+def kid_from_certificate(certificate: str) -> str:
+    der = PEM.decode(certificate)
+    sha = SHA256.new()
+    sha.update(der[0])
+    return base64.b64encode(sha.digest()).decode("utf-8")
 
 
 def load_pub_key_from_cert(content: str) -> JWK:
@@ -16,14 +41,15 @@ def load_pub_key_from_cert(content: str) -> JWK:
 
 def create_jwe(
     jwt_sign_priv_key: JWK,
-    jwt_sign_crt_path: JWK,
+    jwt_sign_crt_path: str,
     jwe_enc_pub_key: JWK,
     payload: Dict[str, Any],
 ) -> str:
+    crt_content = file_content_raise_if_none(jwt_sign_crt_path)
     jwt_header = {
         "alg": "RS256",
         "x5t": jwt_sign_priv_key.thumbprint(hashes.SHA256()),
-        "kid": jwt_sign_crt_path.kid,
+        "kid": kid_from_certificate(crt_content),
     }
     jwt_payload = {
         **{
