@@ -70,15 +70,15 @@ class Service:
             )
             raise UnauthorizedError("Invalid jwt received") from invalid_jws_object
 
-    def _fetch_irma_result(self, exchange_token: str) -> Any:
-        irma_response = requests.get(
+    def _fetch_result(self, exchange_token: str) -> Any:
+        response = requests.get(
             f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
         )
-        if irma_response.status_code >= 400:
+        if response.status_code >= 400:
             raise UnauthorizedError(
-                f"Received invalid response({irma_response.status_code}) from IRMA"
+                f"Received invalid response({response.status_code}) from the login controller"
             )
-        return irma_response.json()
+        return response.json()
 
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
@@ -105,21 +105,26 @@ class Service:
         headers = {
             "Authorization": f"Bearer {jwe_token}",
         }
+        print("jwe_token:", jwe_token)
         return Response(headers=headers)
 
     def handle_exchange_request(self, request: Request):
         claims = self._get_request_claims(request)
-        irma_response_json = self._fetch_irma_result(claims.get("exchange_token", ""))
+        response_json = self._fetch_result(claims.get("exchange_token", ""))
 
         jwt_payload = {}
         for bsn in self._register:
-            if self._register[bsn]["uzi_id"] == irma_response_json["uzi_id"]:
+            if "uzi_id" in response_json and self._register[bsn]["uzi_id"] == response_json["uzi_id"]:
                 jwt_payload = self._register[bsn]
-                jwt_payload["loa_authn"] = irma_response_json["loa_authn"]
+                jwt_payload["loa_authn"] = response_json["loa_authn"]
+                break
+            if "email" in response_json and "email" in self._register[bsn] and self._register[bsn]["email"] == response_json["email"]:
+                jwt_payload = self._register[bsn]
+                jwt_payload["loa_authn"] = response_json["loa_authn"]
                 break
         if not jwt_payload:
             print(
-                f"Unable to find uzi_id in register for uzi_id: {irma_response_json['uzi_id']}"
+                f"Unable to find an entry in register for: {json.dumps(response_json)}"
             )
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
