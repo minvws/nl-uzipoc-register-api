@@ -81,9 +81,6 @@ def create_jwe(
         "enc": "A128CBC-HS256",
         "x5t": jwt_sign_priv_key.thumbprint(hashes.SHA256()),
     }
-    tok = jwt_token.serialize()
-    print(tok)
-    jwe_token = JWT(header=jwe_header, claims=tok)
-    print("pubkey", jwe_enc_pub_key.export_to_pem())
+    jwe_token = JWT(header=jwe_header, claims=jwt_token.serialize())
     jwe_token.make_encrypted_token(jwe_enc_pub_key)
     return jwe_token.serialize()

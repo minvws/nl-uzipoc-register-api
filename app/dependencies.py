@@ -10,7 +10,12 @@ from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
 from app.service import Service
-from app.utils import file_content_raise_if_none, kid_from_certificate, load_jwk, load_json_file
+from app.utils import (
+    file_content_raise_if_none,
+    kid_from_certificate,
+    load_jwk,
+    load_json_file,
+)
 
 expected_issuer = config.get("app", "expected_issuer")
 expected_audience = config.get("app", "expected_audience")

@@ -120,7 +120,6 @@ class Service:
         headers = {
             "Authorization": f"Bearer {jwe_token}",
         }
-        print("jwe_token:", jwe_token)
         return Response(headers=headers)
 
     def handle_exchange_request(self, request: Request):
@@ -134,16 +133,23 @@ class Service:
             response_dict = self._fetch_result(claims.get("exchange_token", ""))
 
         for bsn in self._register:
-            if "uzi_id" in response_dict and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]:
+            if (
+                "uzi_id" in response_dict
+                and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]
+            ):
                 jwt_payload = self._register[bsn]
                 jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
-            if "email" in response_dict and "email" in self._register[bsn] and self._register[bsn]["email"] == response_dict["email"]:
+            if (
+                "email" in response_dict
+                and "email" in self._register[bsn]
+                and self._register[bsn]["email"] == response_dict["email"]
+            ):
                 jwt_payload = self._register[bsn]
                 jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
         if not jwt_payload:
-            print(
+            logger.info(
                 f"Unable to find an entry in register for: {json.dumps(response_dict)}"
             )
 
