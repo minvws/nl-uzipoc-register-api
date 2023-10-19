@@ -2,7 +2,7 @@
 
 set -e
 
-SECRETS_DIR=secrets
+SECRETS_DIR=tests/resources/secrets
 SAML_DIR=saml
 
 create_key_pair () {
@@ -22,39 +22,22 @@ create_key_pair () {
   rm $1/$2.csr
 }
 
+mkdir -p $SECRETS_DIR
 
 ###
  # Create ca for local selfsigned certificates
 ###
-mkdir -p secrets
 if [[ ! -f $SECRETS_DIR/cacert.crt ]]; then
   openssl genrsa -out $SECRETS_DIR/cacert.key 4096
 	openssl req -x509 -new -nodes -sha256 -days 1024 \
 	  -key $SECRETS_DIR/cacert.key \
 	  -out $SECRETS_DIR/cacert.crt \
-	  -subj "/CN=US/CN=uzipoc-register-ca"
+	  -subj "/CN=US/CN=inge-6-uzipoc-ca"
 fi
 
 ###
-# saml idp
+# sign_jwt.crt
 ###
-if [[ ! -f $SAML_DIR/idp/certs/sp.crt ]]; then
-  mkdir -p $SAML_DIR/idp/certs
-  create_key_pair $SAML_DIR/idp/certs "sp" "idp-sp"
-fi
-
-###
-# saml idp tls
-###
-if [[ ! -f $SAML_DIR/idp/certs/tls.crt ]]; then
-  mkdir -p $SAML_DIR/idp/certs
-  create_key_pair $SAML_DIR/idp/certs "tls" "ipd-tls"
-fi
-
-###
-# saml idp dv-cluster-cert
-###
-if [[ ! -f $SAML_DIR/idp/certs/dv.crt ]]; then
-  mkdir -p $SAML_DIR/idp/certs
-  create_key_pair $SAML_DIR/idp/certs "dv" "dv"
+if [[ ! -f $SECRETS_DIR/sign_jwt.crt ]]; then
+  create_key_pair $SECRETS_DIR "sign_jwt" "sign_jwt"
 fi

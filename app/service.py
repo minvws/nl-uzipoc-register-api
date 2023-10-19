@@ -13,6 +13,7 @@ from jwcrypto.jwt import JWT
 from starlette.responses import Response
 
 from app.exceptions import UnauthorizedError
+from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert, create_jwe
 
@@ -26,10 +27,12 @@ class Service:
         expected_issuer: str,
         expected_audience: str,
         jwt_sign_priv_key: JWK,
-        jwt_sign_crt_path: JWK,
+        jwt_sign_crt_path: str,
         max_crt_path: JWK,
         login_controller_session_url: str,
         register: Dict[str, Any],
+        jwt_service: JwtService,
+        zsm_feature: bool,
     ):
         self._artifact_response_factory = artifact_response_factory
         self._expected_issuer = expected_issuer
@@ -39,6 +42,8 @@ class Service:
         self._max_crt_path = max_crt_path
         self._login_controller_session_url = login_controller_session_url
         self._register = register
+        self._jwt_service = jwt_service
+        self._zsm_feature = zsm_feature
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:
@@ -80,6 +85,16 @@ class Service:
             )
         return response.json()
 
+    def _fetch_result_jwt(self, exchange_token: str) -> Any:
+        response = requests.get(
+            f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
+        )
+        if response.status_code >= 400:
+            raise UnauthorizedError(
+                f"Received invalid response({response.status_code}) from the login controller"
+            )
+        return response.text
+
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
@@ -110,22 +125,32 @@ class Service:
 
     def handle_exchange_request(self, request: Request):
         claims = self._get_request_claims(request)
-        response_json = self._fetch_result(claims.get("exchange_token", ""))
-
         jwt_payload = {}
+
+        if self._zsm_feature:
+            response_jwt = self._fetch_result_jwt(claims.get("exchange_token", ""))
+            response_dict = self._jwt_service.from_jwt(response_jwt)
+        else:
+            response_dict = self._fetch_result(claims.get("exchange_token", ""))
+
         for bsn in self._register:
-            if "uzi_id" in response_json and self._register[bsn]["uzi_id"] == response_json["uzi_id"]:
+            if "uzi_id" in response_dict and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]:
                 jwt_payload = self._register[bsn]
-                jwt_payload["loa_authn"] = response_json["loa_authn"]
+                jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
-            if "email" in response_json and "email" in self._register[bsn] and self._register[bsn]["email"] == response_json["email"]:
+            if "email" in response_dict and "email" in self._register[bsn] and self._register[bsn]["email"] == response_dict["email"]:
                 jwt_payload = self._register[bsn]
-                jwt_payload["loa_authn"] = response_json["loa_authn"]
+                jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
         if not jwt_payload:
             print(
-                f"Unable to find an entry in register for: {json.dumps(response_json)}"
+                f"Unable to find an entry in register for: {json.dumps(response_dict)}"
             )
+
+        del jwt_payload["token"]
+        if self._zsm_feature and response_dict["token"] != jwt_payload["token"]:
+            raise HTTPException(status_code=403, detail="Token mismatch")
+
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
             jwt_payload["relations"] = [

@@ -1,3 +1,4 @@
+import json
 import time
 import base64
 from os import path
@@ -37,6 +38,16 @@ def load_pub_key_from_cert(content: str) -> JWK:
         f"-----BEGIN CERTIFICATE-----{content}-----END CERTIFICATE-----".encode("utf-8")
     )
     return JWK.from_pyca(x509_cert.public_key())
+
+
+def load_jwk(path: str) -> JWK:
+    with open(path, encoding="utf-8") as file:
+        return JWK.from_pem(file.read().encode("utf-8"))
+
+
+def load_json_file(path: str) -> Dict[str, Any]:
+    with open(path, encoding="utf-8") as file:
+        return json.loads(file.read())
 
 
 def create_jwe(
