@@ -9,6 +9,7 @@ max_crt_path = secrets/nl-rdo-max-private.crt
 login_controller_session_url = http://localhost:8001/session
 
 register_path = mock_register.json
+zsm_feature = true
 
 [saml]
 xml_templates_path = saml/templates/xml

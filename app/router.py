@@ -1,8 +1,9 @@
 import logging
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
+from starlette.responses import JSONResponse
 
-from app.dependencies import service_
+from app.dependencies import service_, zsm_feature_
 from app.service import Service
 
 router = APIRouter()
@@ -25,3 +26,16 @@ async def get_uzi_by_digid_artifact(
     service: Service = Depends(lambda: service_),
 ):
     return await service.handle_saml_request(request)
+
+
+@router.get("/signed-uzi")
+async def get_signed_uzi(
+    uzi_number: str,
+    service: Service = Depends(lambda: service_),
+    zsm_feature: bool = Depends(lambda: zsm_feature_),
+):
+    if zsm_feature:
+        return JSONResponse(
+            {"signed_uzi_number": service.get_signed_uzi_number(uzi_number)}
+        )
+    raise HTTPException(status_code=404, detail="Not found")

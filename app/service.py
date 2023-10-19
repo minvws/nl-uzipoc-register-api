@@ -26,8 +26,8 @@ class Service:
         artifact_response_factory: ArtifactResponseFactory,
         expected_issuer: str,
         expected_audience: str,
-        jwt_sign_priv_key: JWK,
-        jwt_sign_crt_path: str,
+        jwt_priv_key: JWK,
+        jwt_crt_path: str,
         max_crt_path: JWK,
         login_controller_session_url: str,
         register: Dict[str, Any],
@@ -37,8 +37,8 @@ class Service:
         self._artifact_response_factory = artifact_response_factory
         self._expected_issuer = expected_issuer
         self._expected_audience = expected_audience
-        self._jwt_sign_priv_key = jwt_sign_priv_key
-        self._jwt_sign_crt_path = jwt_sign_crt_path
+        self._jwt_priv_key = jwt_priv_key
+        self._jwt_crt_path = jwt_crt_path
         self._max_crt_path = max_crt_path
         self._login_controller_session_url = login_controller_session_url
         self._register = register
@@ -115,7 +115,7 @@ class Service:
         )
 
         jwe_token = create_jwe(
-            self._jwt_sign_priv_key, self._jwt_sign_crt_path, jwe_pub_key, jwt_payload
+            self._jwt_priv_key, self._jwt_crt_path, jwe_pub_key, jwt_payload
         )
         headers = {
             "Authorization": f"Bearer {jwe_token}",
@@ -183,3 +183,13 @@ class Service:
                 r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
             ]
         return self._create_response(jwt_payload, claims)
+
+    def get_signed_uzi_number(self, uzi_number: str):
+        for bsn in self._register:
+            if self._register[bsn]["uzi_id"] == uzi_number:
+                return self._jwt_service.create_jwt(
+                    {
+                        "uzi_id": uzi_number,
+                        "token": self._register[bsn]["token"],
+                    }
+                )
