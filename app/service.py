@@ -27,7 +27,7 @@ class Service:
         expected_issuer: str,
         expected_audience: str,
         jwt_priv_key: JWK,
-        jwt_crt_path: str,
+        jwt_pub_key: JWK,
         max_crt_path: JWK,
         login_controller_session_url: str,
         register: Dict[str, Any],
@@ -38,7 +38,7 @@ class Service:
         self._expected_issuer = expected_issuer
         self._expected_audience = expected_audience
         self._jwt_priv_key = jwt_priv_key
-        self._jwt_crt_path = jwt_crt_path
+        self._jwt_pub_key = jwt_pub_key
         self._max_crt_path = max_crt_path
         self._login_controller_session_url = login_controller_session_url
         self._register = register
@@ -93,7 +93,7 @@ class Service:
             raise UnauthorizedError(
                 f"Received invalid response({response.status_code}) from the login controller"
             )
-        return response.text
+        return response.json()
 
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
@@ -114,9 +114,7 @@ class Service:
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
 
-        jwe_token = create_jwe(
-            self._jwt_priv_key, self._jwt_crt_path, jwe_pub_key, jwt_payload
-        )
+        jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
             "Authorization": f"Bearer {jwe_token}",
         }
@@ -127,10 +125,20 @@ class Service:
         jwt_payload = {}
 
         if self._zsm_feature:
-            response_jwt = self._fetch_result_jwt(claims.get("exchange_token", ""))
-            response_dict = self._jwt_service.from_jwt(response_jwt)
+            response_dict = self._fetch_result_jwt(claims.get("exchange_token", ""))
+            print(response_dict)
+            uzi_jwt = response_dict["uzi_id"]
+            signed_response = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
+
+            print("response_jwt")
+            print(signed_response)
+            response_dict.update({
+                "token": signed_response["token"],
+                "uzi_id": signed_response["uzi_id"]
+            })
         else:
             response_dict = self._fetch_result(claims.get("exchange_token", ""))
+
 
         for bsn in self._register:
             if (
@@ -153,9 +161,9 @@ class Service:
                 f"Unable to find an entry in register for: {json.dumps(response_dict)}"
             )
 
-        del jwt_payload["token"]
         if self._zsm_feature and response_dict["token"] != jwt_payload["token"]:
             raise HTTPException(status_code=403, detail="Token mismatch")
+        del jwt_payload["token"]
 
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")

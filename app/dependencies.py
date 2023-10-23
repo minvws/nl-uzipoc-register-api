@@ -56,7 +56,6 @@ saml_sp_metadata_ = SPMetadata(
 ####
 jwt_service = JwtService(
     jwt_priv_key=jwt_priv_key,
-    jwt_pub_key=jwt_pub_key,
     crt_kid=kid_from_certificate(jwt_crt_content),
 )
 
@@ -84,7 +83,7 @@ service_ = Service(
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
     jwt_priv_key=jwt_priv_key,
-    jwt_crt_path=jwt_crt_path,
+    jwt_pub_key=jwt_pub_key,
     max_crt_path=max_crt_path,
     login_controller_session_url=login_controller_session_url,
     register=register_,

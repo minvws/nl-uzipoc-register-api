@@ -2,8 +2,10 @@
 expected_issuer = max
 expected_audience = uzipoc_register
 
-jwt_sign_priv_key_path = secrets/nl-uzipoc-register-api.key
-jwt_sign_crt_path = secrets/nl-uzipoc-register-api.crt
+jwt_priv_key_path = secrets/nl-uzipoc-register-api.key
+# Pub key to validate Signed UZI ID's
+jwt_pub_key_path = secrets/nl-uzipoc-register-api.pub
+jwt_crt_path = secrets/nl-uzipoc-register-api.crt
 
 max_crt_path = secrets/nl-rdo-max-private.crt
 login_controller_session_url = http://localhost:8001/session
