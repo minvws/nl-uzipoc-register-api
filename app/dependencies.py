@@ -1,8 +1,4 @@
-import json
-from typing import Dict, Any
-
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from jwcrypto.jwk import JWK
 from packaging.version import parse as version_parse
 
 from app.config import config

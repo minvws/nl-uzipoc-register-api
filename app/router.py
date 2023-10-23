@@ -37,7 +37,5 @@ async def get_signed_uzi(
     if zsm_feature:
         signed_uzi_number = service.get_signed_uzi_number(uzi_number)
         if signed_uzi_number is not None:
-            return JSONResponse(
-                {"signed_uzi_number": signed_uzi_number}
-            )
+            return JSONResponse({"signed_uzi_number": signed_uzi_number})
     raise HTTPException(status_code=404, detail="Not found")

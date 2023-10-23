@@ -15,12 +15,13 @@ from starlette.responses import Response
 from app.exceptions import UnauthorizedError
 from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
-from app.utils import load_pub_key_from_cert, create_jwe
+from app.utils import load_pub_key_from_cert
 
 logger = logging.getLogger(__name__)
 
 
 class Service:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         artifact_response_factory: ArtifactResponseFactory,
@@ -129,13 +130,11 @@ class Service:
             print(response_dict)
             uzi_jwt = response_dict["uzi_id"]
             signed_response = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-            response_dict.update({
-                "token": signed_response["token"],
-                "uzi_id": signed_response["uzi_id"]
-            })
+            response_dict.update(
+                {"token": signed_response["token"], "uzi_id": signed_response["uzi_id"]}
+            )
         else:
             response_dict = self._fetch_result(claims.get("exchange_token", ""))
-
 
         for bsn in self._register:
             if (
@@ -155,7 +154,7 @@ class Service:
                 break
         if not jwt_payload:
             logger.info(
-                f"Unable to find an entry in register for: {json.dumps(response_dict)}"
+                "Unable to find an entry in register for: %s", json.dumps(response_dict)
             )
 
         if self._zsm_feature and response_dict["token"] != jwt_payload["token"]:
@@ -198,3 +197,4 @@ class Service:
                         "token": self._register[bsn]["token"],
                     }
                 )
+        return self._jwt_service.create_jwt({})

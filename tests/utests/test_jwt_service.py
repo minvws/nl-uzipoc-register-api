@@ -13,9 +13,7 @@ def test_create_and_validate_jwt_and_jwe():
         "tests/resources/secrets/sign_jwt.crt"
     )
     kid = kid_from_certificate(jwt_sign_crt_content)
-    jwt_service = JwtService(
-        jwt_priv_key=jwt_priv_key, jwt_pub_key=jwt_pub_key, crt_kid=kid
-    )
+    jwt_service = JwtService(jwt_priv_key=jwt_priv_key, crt_kid=kid)
     jwt = jwt_service.create_jwt(payload={"claim": "value"})
     parts = jwt.split(".")
     assert len(parts) == 3
@@ -28,7 +26,7 @@ def test_create_and_validate_jwt_and_jwe():
 
     assert json.loads(base64.b64decode(parts[1]).decode("utf-8"))["claim"] == "value"
 
-    result = jwt_service.from_jwt(jwt)
+    result = jwt_service.from_jwt(jwt_pub_key, jwt)
     assert result["claim"] == "value"
 
     jwe = jwt_service.create_jwe(
@@ -48,5 +46,5 @@ def test_create_and_validate_jwt_and_jwe():
         json.loads(base64.b64decode(parts[0] + "==").decode("utf-8")) == expected_header
     )
 
-    result = jwt_service.from_jwe(jwe)
+    result = jwt_service.from_jwe(jwt_pub_key, jwe)
     assert result["claim"] == "value"

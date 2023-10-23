@@ -1,15 +1,12 @@
 import json
-import time
 import base64
 from os import path
 from typing import Dict, Any, Union
 
-from cryptography.hazmat.primitives import hashes
 from cryptography.x509 import load_pem_x509_certificate
 from Cryptodome.Hash import SHA256
 from Cryptodome.IO import PEM
 from jwcrypto.jwk import JWK
-from jwcrypto.jwt import JWT
 
 
 def file_content_raise_if_none(filepath: str) -> str:
@@ -40,47 +37,11 @@ def load_pub_key_from_cert(content: str) -> JWK:
     return JWK.from_pyca(x509_cert.public_key())
 
 
-def load_jwk(path: str) -> JWK:
-    with open(path, encoding="utf-8") as file:
+def load_jwk(filepath: str) -> JWK:
+    with open(filepath, encoding="utf-8") as file:
         return JWK.from_pem(file.read().encode("utf-8"))
 
 
-def load_json_file(path: str) -> Dict[str, Any]:
-    with open(path, encoding="utf-8") as file:
+def load_json_file(filepath: str) -> Dict[str, Any]:
+    with open(filepath, encoding="utf-8") as file:
         return json.loads(file.read())
-
-
-def create_jwe(
-    jwt_sign_priv_key: JWK,
-    jwt_sign_crt_path: str,
-    jwe_enc_pub_key: JWK,
-    payload: Dict[str, Any],
-) -> str:
-    crt_content = file_content_raise_if_none(jwt_sign_crt_path)
-    jwt_header = {
-        "alg": "RS256",
-        "x5t": jwt_sign_priv_key.thumbprint(hashes.SHA256()),
-        "kid": kid_from_certificate(crt_content),
-    }
-    jwt_payload = {
-        **{
-            "nbf": int(time.time()) - 10,
-            "exp": int(time.time()) + 60,
-        },
-        **payload,
-    }
-    jwt_token = JWT(
-        header=jwt_header,
-        claims=jwt_payload,
-    )
-    jwt_token.make_signed_token(jwt_sign_priv_key)
-    jwe_header = {
-        "typ": "JWT",
-        "cty": "JWT",
-        "alg": "RSA-OAEP",
-        "enc": "A128CBC-HS256",
-        "x5t": jwt_sign_priv_key.thumbprint(hashes.SHA256()),
-    }
-    jwe_token = JWT(header=jwe_header, claims=jwt_token.serialize())
-    jwe_token.make_encrypted_token(jwe_enc_pub_key)
-    return jwe_token.serialize()
