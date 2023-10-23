@@ -129,9 +129,6 @@ class Service:
             print(response_dict)
             uzi_jwt = response_dict["uzi_id"]
             signed_response = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-
-            print("response_jwt")
-            print(signed_response)
             response_dict.update({
                 "token": signed_response["token"],
                 "uzi_id": signed_response["uzi_id"]
