@@ -141,7 +141,10 @@ class Service:
                 "uzi_id" in response_dict
                 and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]
             ):
-                if not self._zsm_feature or response_dict["token"] == self._register[bsn]["token"]:
+                if (
+                    not self._zsm_feature
+                    or response_dict["token"] == self._register[bsn]["token"]
+                ):
                     jwt_payload = self._register[bsn]
                     jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
