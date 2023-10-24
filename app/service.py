@@ -91,7 +91,7 @@ class Service:
             f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
         )
         if response.status_code >= 400:
-            raise UnauthorizedError(
+            raise RuntimeError(
                 f"Received invalid response({response.status_code}) from the login controller"
             )
         return response.json()
@@ -130,9 +130,9 @@ class Service:
             print(response_dict)
             uzi_jwt = response_dict["uzi_id"]
             signed_response = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-            response_dict.update(
-                {"token": signed_response["token"], "uzi_id": signed_response["uzi_id"]}
-            )
+            if "uzi_id" in signed_response:
+                response_dict["uzi_id"] = signed_response["uzi_id"]
+                response_dict["token"] = signed_response["token"]
         else:
             response_dict = self._fetch_result(claims.get("exchange_token", ""))
 
@@ -141,24 +141,14 @@ class Service:
                 "uzi_id" in response_dict
                 and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]
             ):
-                jwt_payload = self._register[bsn]
-                jwt_payload["loa_authn"] = response_dict["loa_authn"]
-                break
-            if (
-                "email" in response_dict
-                and "email" in self._register[bsn]
-                and self._register[bsn]["email"] == response_dict["email"]
-            ):
-                jwt_payload = self._register[bsn]
-                jwt_payload["loa_authn"] = response_dict["loa_authn"]
+                if not self._zsm_feature or response_dict["token"] == self._register[bsn]["token"]:
+                    jwt_payload = self._register[bsn]
+                    jwt_payload["loa_authn"] = response_dict["loa_authn"]
                 break
         if not jwt_payload:
             logger.info(
                 "Unable to find an entry in register for: %s", json.dumps(response_dict)
             )
-
-        if self._zsm_feature and response_dict["token"] != jwt_payload["token"]:
-            raise HTTPException(status_code=403, detail="Token mismatch")
 
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
