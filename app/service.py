@@ -159,7 +159,6 @@ class Service:
 
         if self._zsm_feature and response_dict["token"] != jwt_payload["token"]:
             raise HTTPException(status_code=403, detail="Token mismatch")
-        del jwt_payload["token"]
 
         if claims["ura"] != "*" and jwt_payload:
             allowed_uras = claims["ura"].split(",")
