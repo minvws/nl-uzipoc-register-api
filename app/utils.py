@@ -1,7 +1,6 @@
-import json
 import base64
 from os import path
-from typing import Dict, Any, Union
+from typing import Union
 
 from cryptography.x509 import load_pem_x509_certificate
 from Cryptodome.Hash import SHA256

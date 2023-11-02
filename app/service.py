@@ -111,13 +111,19 @@ class Service:
         }
         return Response(headers=headers)
 
-    def _get_claims_from_register_by_bsn(self, bsn: str, token: Union[str, None] = None) -> Dict[str, Any]:
+    def _get_claims_from_register_by_bsn(
+        self, bsn: str, token: Union[str, None] = None
+    ) -> Dict[str, Any]:
         return self._get_claims_from_register("bsn", bsn, token)
 
-    def _get_claims_from_register_by_uzi(self, uzi: str, token: Union[str, None] = None) -> Dict[str, Any]:
+    def _get_claims_from_register_by_uzi(
+        self, uzi: str, token: Union[str, None] = None
+    ) -> Dict[str, Any]:
         return self._get_claims_from_register("uzi_id", uzi, token)
 
-    def _get_claims_from_register(self, key: str, value: str, token: Union[str, None] = None) -> Dict[str, Any]:
+    def _get_claims_from_register(
+        self, key: str, value: str, token: Union[str, None] = None
+    ) -> Dict[str, Any]:
         for entry in self._register:
             if entry[key] == value:
                 if token is None or entry["token"] == token:
@@ -134,11 +140,12 @@ class Service:
 
     def _get_claims_for_signed_jwt(self, uzi_jwt) -> Dict[str, Any]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-        return self._get_claims_from_register_by_uzi(fetched_claims["uzi_id"], fetched_claims["token"])
+        return self._get_claims_from_register_by_uzi(
+            fetched_claims["uzi_id"], fetched_claims["token"]
+        )
 
     def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
         return self._get_claims_from_register_by_uzi(uzi_id)
-
 
     def handle_exchange_request(self, request: Request):
         claims = self._get_request_claims(request)
@@ -167,7 +174,7 @@ class Service:
         if claims["saml_id"] != artifact_response.root.attrib["ID"]:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
-        jwt_payload = self._register.get(bsn, {})
+        jwt_payload = self._get_claims_from_register_by_bsn(bsn)
         if claims["ura"] != "*":
             allowed_uras = claims["ura"].split(",")
             jwt_payload["relations"] = [
@@ -187,7 +194,9 @@ class Service:
         return self._jwt_service.create_jwt({})
 
     @staticmethod
-    def filter_relations(relations: List[Dict[str, Any]], allowed_uras: List[str]) -> List[Dict[str, Any]]:
-        if '*' in allowed_uras:
+    def filter_relations(
+        relations: List[Dict[str, Any]], allowed_uras: List[str]
+    ) -> List[Dict[str, Any]]:
+        if "*" in allowed_uras:
             return relations
         return [r for r in relations if r["ura"] in allowed_uras]

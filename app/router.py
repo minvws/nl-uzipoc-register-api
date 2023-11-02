@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request
 from starlette.responses import JSONResponse
 
 from app.dependencies import service_
