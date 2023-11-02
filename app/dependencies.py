@@ -41,7 +41,7 @@ login_controller_session_url = config.get("app", "login_controller_session_url")
 
 register_ = load_register_file(config.get("app", "register_path"))
 
-allow_unsigned_jwt_ = config.get("app", "allow_unsigned_jwt", fallback="true") == "true"
+allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
 saml_jinja_env_ = Environment(
     loader=FileSystemLoader(config.get("saml", "xml_templates_path")),
@@ -97,5 +97,5 @@ service_ = Service(
     login_controller_session_url=login_controller_session_url,
     register=register_,
     jwt_service=jwt_service,
-    allow_unsigned_jwt=allow_unsigned_jwt_,
+    allow_plain_uzi_id=allow_plain_uzi_id_,
 )

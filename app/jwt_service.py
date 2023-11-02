@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class JwtService:
-    def __init__(self, jwt_priv_key: JWK, crt_kid):
+    def __init__(self, jwt_priv_key: JWK, crt_kid: str):
         self._jwt_priv_key = jwt_priv_key
         self._crt_kid = crt_kid
 

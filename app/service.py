@@ -33,7 +33,7 @@ class Service:
         login_controller_session_url: str,
         register: List[Dict[str, Any]],
         jwt_service: JwtService,
-        allow_unsigned_jwt: bool,
+        allow_plain_uzi_id: bool,
     ):
         self._artifact_response_factory = artifact_response_factory
         self._expected_issuer = expected_issuer
@@ -44,7 +44,7 @@ class Service:
         self._login_controller_session_url = login_controller_session_url
         self._register = register
         self._jwt_service = jwt_service
-        self._allow_unsigned_jwt = allow_unsigned_jwt
+        self._allow_plain_uzi_id = allow_plain_uzi_id
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:
@@ -151,7 +151,7 @@ class Service:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
 
-        if self._allow_unsigned_jwt and len(fetched["uzi_id"]) < 16:
+        if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
             jwt_payload = self._get_claims_from_register_by_uzi(fetched["uzi_id"])
         else:
             jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
@@ -175,11 +175,9 @@ class Service:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
         jwt_payload = self._get_claims_from_register_by_bsn(bsn)
-        if claims["ura"] != "*":
-            allowed_uras = claims["ura"].split(",")
-            jwt_payload["relations"] = [
-                r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
-            ]
+        jwt_payload["relations"] = Service.filter_relations(
+            jwt_payload["relations"], claims["ura"].split(",")
+        )
         return self._create_response(jwt_payload, claims)
 
     def get_signed_uzi_number(self, uzi_number: str):
