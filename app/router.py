@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, Request, HTTPException
 from starlette.responses import JSONResponse
 
-from app.dependencies import service_, zsm_feature_
+from app.dependencies import service_
 from app.service import Service
 
 router = APIRouter()
@@ -32,10 +32,7 @@ async def get_uzi_by_digid_artifact(
 async def get_signed_uzi(
     uzi_number: str,
     service: Service = Depends(lambda: service_),
-    zsm_feature: bool = Depends(lambda: zsm_feature_),
 ):
-    if zsm_feature:
-        signed_uzi_number = service.get_signed_uzi_number(uzi_number)
-        if signed_uzi_number is not None:
-            return JSONResponse({"signed_uzi_number": signed_uzi_number})
-    raise HTTPException(status_code=404, detail="Not found")
+    signed_uzi_number = service.get_signed_uzi_number(uzi_number)
+    if signed_uzi_number is not None:
+        return JSONResponse({"signed_uzi_number": signed_uzi_number})

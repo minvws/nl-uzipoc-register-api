@@ -40,8 +40,3 @@ def load_pub_key_from_cert(content: str) -> JWK:
 def load_jwk(filepath: str) -> JWK:
     with open(filepath, encoding="utf-8") as file:
         return JWK.from_pem(file.read().encode("utf-8"))
-
-
-def load_json_file(filepath: str) -> Dict[str, Any]:
-    with open(filepath, encoding="utf-8") as file:
-        return json.loads(file.read())

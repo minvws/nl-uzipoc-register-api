@@ -1,5 +1,6 @@
-{
-    "999991772": {
+[
+    {
+        "bsn": "999991772",
         "loa_uzi": "http://eidas.europa.eu/LoA/substantial",
         "loa_authn": "http://eidas.europa.eu/LoA/substantial",
         "token": "40fcf1b4-348c-4dcc-8b17-dc1af7acc559",
@@ -14,8 +15,8 @@
                 "roles": ["01.041", "30.000", "01.010", "01.011"]
             }
         ]
-    },
-    "900020108": {
+    },{
+        "bsn": "900020108",
         "loa_uzi": "http://eidas.europa.eu/LoA/substantial",
         "loa_authn": "http://eidas.europa.eu/LoA/substantial",
         "token": "62a7006a-0f2e-4c36-92cf-e1870458446f",
@@ -31,4 +32,4 @@
             }
         ]
     }
-}
+]

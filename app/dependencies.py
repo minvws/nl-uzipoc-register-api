@@ -1,3 +1,6 @@
+import json
+from typing import Dict, Any, List
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from packaging.version import parse as version_parse
 
@@ -10,8 +13,18 @@ from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,
     load_jwk,
-    load_json_file,
 )
+
+
+def load_saml_file(filepath: str) -> Dict[str, Any]:
+    with open(filepath, encoding="utf-8") as file:
+        return json.loads(file.read())
+
+
+def load_register_file(filepath: str) -> List[Dict[str, Any]]:
+    with open(filepath, encoding="utf-8") as file:
+        return json.loads(file.read())
+
 
 expected_issuer = config.get("app", "expected_issuer")
 expected_audience = config.get("app", "expected_audience")
@@ -26,16 +39,16 @@ max_crt_path = load_jwk(config.get("app", "max_crt_path"))
 
 login_controller_session_url = config.get("app", "login_controller_session_url")
 
-register_ = load_json_file(config.get("app", "register_path"))
+register_ = load_register_file(config.get("app", "register_path"))
 
-zsm_feature_ = config.get("app", "zsm_feature", fallback="false") == "true"
+allow_unsigned_jwt_ = config.get("app", "allow_unsigned_jwt", fallback="true") == "true"
 
 saml_jinja_env_ = Environment(
     loader=FileSystemLoader(config.get("saml", "xml_templates_path")),
     autoescape=select_autoescape(),
 )
 
-saml_settings_ = load_json_file(config.get("saml", "sp_settings_path"))
+saml_settings_ = load_saml_file(config.get("saml", "sp_settings_path"))
 saml_sp_settings_ = saml_settings_.get("sp", {})
 saml_idp_metadata_ = IdPMetadata(saml_settings_.get("idp", {}).get("metadata_path"))
 saml_sp_metadata_ = SPMetadata(
@@ -84,5 +97,5 @@ service_ = Service(
     login_controller_session_url=login_controller_session_url,
     register=register_,
     jwt_service=jwt_service,
-    zsm_feature=zsm_feature_,
+    allow_unsigned_jwt=allow_unsigned_jwt_,
 )

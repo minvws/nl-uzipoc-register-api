@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from typing import Dict, Any
+from typing import Dict, Any, List, Union
 
 import requests
 from fastapi import HTTPException
@@ -31,9 +31,9 @@ class Service:
         jwt_pub_key: JWK,
         max_crt_path: JWK,
         login_controller_session_url: str,
-        register: Dict[str, Any],
+        register: List[Dict[str, Any]],
         jwt_service: JwtService,
-        zsm_feature: bool,
+        allow_unsigned_jwt: bool,
     ):
         self._artifact_response_factory = artifact_response_factory
         self._expected_issuer = expected_issuer
@@ -44,7 +44,7 @@ class Service:
         self._login_controller_session_url = login_controller_session_url
         self._register = register
         self._jwt_service = jwt_service
-        self._zsm_feature = zsm_feature
+        self._allow_unsigned_jwt = allow_unsigned_jwt
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:
@@ -86,16 +86,6 @@ class Service:
             )
         return response.json()
 
-    def _fetch_result_jwt(self, exchange_token: str) -> Any:
-        response = requests.get(
-            f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
-        )
-        if response.status_code >= 400:
-            raise RuntimeError(
-                f"Received invalid response({response.status_code}) from the login controller"
-            )
-        return response.json()
-
     def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
@@ -121,43 +111,48 @@ class Service:
         }
         return Response(headers=headers)
 
+    def _get_claims_from_register_by_bsn(self, bsn: str, token: Union[str, None] = None) -> Dict[str, Any]:
+        return self._get_claims_from_register("bsn", bsn, token)
+
+    def _get_claims_from_register_by_uzi(self, uzi: str, token: Union[str, None] = None) -> Dict[str, Any]:
+        return self._get_claims_from_register("uzi_id", uzi, token)
+
+    def _get_claims_from_register(self, key: str, value: str, token: Union[str, None] = None) -> Dict[str, Any]:
+        for entry in self._register:
+            if entry[key] == value:
+                if token is None or entry["token"] == token:
+                    return {
+                        "loa_uzi": entry["loa_uzi"],
+                        "loa_authn": entry["loa_authn"],
+                        "uzi_id": entry["uzi_id"],
+                        "initials": entry["initials"],
+                        "surname_prefix": entry["surname_prefix"],
+                        "surname": entry["surname"],
+                        "relations": entry["relations"],
+                    }
+        return {}
+
+    def _get_claims_for_signed_jwt(self, uzi_jwt) -> Dict[str, Any]:
+        fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
+        return self._get_claims_from_register_by_uzi(fetched_claims["uzi_id"], fetched_claims["token"])
+
+    def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
+        return self._get_claims_from_register_by_uzi(uzi_id)
+
+
     def handle_exchange_request(self, request: Request):
         claims = self._get_request_claims(request)
-        jwt_payload = {}
+        fetched = self._fetch_result(claims.get("exchange_token", ""))
 
-        if self._zsm_feature:
-            response_dict = self._fetch_result_jwt(claims.get("exchange_token", ""))
-            print(response_dict)
-            uzi_jwt = response_dict["uzi_id"]
-            signed_response = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-            if "uzi_id" in signed_response:
-                response_dict["uzi_id"] = signed_response["uzi_id"]
-                response_dict["token"] = signed_response["token"]
+        if self._allow_unsigned_jwt and len(fetched["uzi_id"]) < 16:
+            jwt_payload = self._get_claims_from_register_by_uzi(fetched["uzi_id"])
         else:
-            response_dict = self._fetch_result(claims.get("exchange_token", ""))
+            jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
-        for bsn in self._register:
-            if (
-                "uzi_id" in response_dict
-                and self._register[bsn]["uzi_id"] == response_dict["uzi_id"]
-            ):
-                if (
-                    not self._zsm_feature
-                    or response_dict["token"] == self._register[bsn]["token"]
-                ):
-                    jwt_payload = self._register[bsn]
-                    jwt_payload["loa_authn"] = response_dict["loa_authn"]
-                break
-        if not jwt_payload:
-            logger.info(
-                "Unable to find an entry in register for: %s", json.dumps(response_dict)
-            )
+        jwt_payload["relations"] = Service.filter_relations(
+            jwt_payload["relations"], claims["ura"].split(",")
+        )
 
-        if claims["ura"] != "*" and jwt_payload:
-            allowed_uras = claims["ura"].split(",")
-            jwt_payload["relations"] = [
-                r for r in jwt_payload["relations"] if r["ura"] in allowed_uras
-            ]
         return self._create_response(jwt_payload, claims)
 
     async def handle_saml_request(
@@ -181,12 +176,18 @@ class Service:
         return self._create_response(jwt_payload, claims)
 
     def get_signed_uzi_number(self, uzi_number: str):
-        for bsn in self._register:
-            if self._register[bsn]["uzi_id"] == uzi_number:
+        for entry in self._register:
+            if entry["uzi_id"] == uzi_number:
                 return self._jwt_service.create_jwt(
                     {
                         "uzi_id": uzi_number,
-                        "token": self._register[bsn]["token"],
+                        "token": entry["token"],
                     }
                 )
         return self._jwt_service.create_jwt({})
+
+    @staticmethod
+    def filter_relations(relations: List[Dict[str, Any]], allowed_uras: List[str]) -> List[Dict[str, Any]]:
+        if '*' in allowed_uras:
+            return relations
+        return [r for r in relations if r["ura"] in allowed_uras]
