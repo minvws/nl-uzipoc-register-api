@@ -1,4 +1,6 @@
+# mypy: disallow_untyped_defs = False
 # pylint: disable=c-extension-no-member
+
 import base64
 import secrets
 from abc import abstractmethod

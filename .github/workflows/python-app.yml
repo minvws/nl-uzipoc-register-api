@@ -21,6 +21,9 @@ jobs:
           python-version: '3.8'
           cache: 'pip' # caching pip dependencies
 
+      - name: Configure git
+        run: git config --global url."https://${{ secrets.REPO_READ_ONLY_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -46,6 +49,9 @@ jobs:
         with:
           python-version: '3.8'
           cache: 'pip' # caching pip dependencies
+
+      - name: Configure git
+        run: git config --global url."https://${{ secrets.REPO_READ_ONLY_TOKEN }}@github.com/".insteadOf "ssh://git@github.com/"
 
       - name: Install dependencies
         run: |

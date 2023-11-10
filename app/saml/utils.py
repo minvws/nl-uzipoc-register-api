@@ -1,3 +1,5 @@
+# mypy: disallow_untyped_defs = False
+
 import textwrap
 from typing import Union, List, Tuple, Any, Dict
 import xmlsec

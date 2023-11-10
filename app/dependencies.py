@@ -1,45 +1,54 @@
 import json
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from jwcrypto.jwk import JWK
 from packaging.version import parse as version_parse
 
 from app.config import config
+from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
 from app.service import Service
+from app.utils import (
+    file_content_raise_if_none,
+    kid_from_certificate,
+    load_jwk,
+)
 
 
-def _load_jwk(path: str) -> JWK:
-    with open(path, encoding="utf-8") as file:
-        return JWK.from_pem(file.read().encode("utf-8"))
+def load_saml_file(filepath: str) -> Dict[str, Any]:
+    with open(filepath, encoding="utf-8") as file:
+        return json.loads(file.read())
 
 
-def _load_json_file(path: str) -> Dict[str, Any]:
-    with open(path, encoding="utf-8") as file:
+def load_register_file(filepath: str) -> List[Dict[str, Any]]:
+    with open(filepath, encoding="utf-8") as file:
         return json.loads(file.read())
 
 
 expected_issuer = config.get("app", "expected_issuer")
 expected_audience = config.get("app", "expected_audience")
 
-jwt_sign_priv_key = _load_jwk(config.get("app", "jwt_sign_priv_key_path"))
-jwt_sign_crt_path = config.get("app", "jwt_sign_crt_path")
+jwt_crt_path = config.get("app", "jwt_crt_path")
+jwt_crt_content = file_content_raise_if_none(jwt_crt_path)
 
-max_crt_path = _load_jwk(config.get("app", "max_crt_path"))
+jwt_priv_key = load_jwk(config.get("app", "jwt_priv_key_path"))
+jwt_pub_key = load_jwk(config.get("app", "jwt_pub_key_path"))
+
+max_crt_path = load_jwk(config.get("app", "max_crt_path"))
 
 login_controller_session_url = config.get("app", "login_controller_session_url")
 
-register_ = _load_json_file(config.get("app", "register_path"))
+register_ = load_register_file(config.get("app", "register_path"))
 
+allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
 saml_jinja_env_ = Environment(
     loader=FileSystemLoader(config.get("saml", "xml_templates_path")),
     autoescape=select_autoescape(),
 )
 
-saml_settings_ = _load_json_file(config.get("saml", "sp_settings_path"))
+saml_settings_ = load_saml_file(config.get("saml", "sp_settings_path"))
 saml_sp_settings_ = saml_settings_.get("sp", {})
 saml_idp_metadata_ = IdPMetadata(saml_settings_.get("idp", {}).get("metadata_path"))
 saml_sp_metadata_ = SPMetadata(
@@ -49,6 +58,14 @@ saml_sp_metadata_ = SPMetadata(
         saml_sp_settings_.get("key_path"),
     ),
     saml_jinja_env_,
+)
+
+####
+## Services
+####
+jwt_service = JwtService(
+    jwt_priv_key=jwt_priv_key,
+    crt_kid=kid_from_certificate(jwt_crt_content),
 )
 
 artifact_response_factory_ = ArtifactResponseFactory(
@@ -74,9 +91,11 @@ service_ = Service(
     artifact_response_factory=artifact_response_factory_,
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
-    jwt_sign_priv_key=jwt_sign_priv_key,
-    jwt_sign_crt_path=jwt_sign_crt_path,
+    jwt_priv_key=jwt_priv_key,
+    jwt_pub_key=jwt_pub_key,
     max_crt_path=max_crt_path,
     login_controller_session_url=login_controller_session_url,
     register=register_,
+    jwt_service=jwt_service,
+    allow_plain_uzi_id=allow_plain_uzi_id_,
 )

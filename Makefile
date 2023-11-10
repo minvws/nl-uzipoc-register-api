@@ -22,11 +22,14 @@ pip-sync: ## synchronizes the .venv with the state of requirements.txt
 	. .venv/bin/activate && ${env} pip-sync
 	. .venv/bin/activate && ${env} pip install -e .
 
-setup: venv
+setup-secrets:
+	rm -rf
+	scripts/./setup-secrets.sh
+
+setup: venv setup-secrets
 	cp app.conf.example app.conf
 	cp mock_register.json.example mock_register.json
 	cp saml/idp/settings.json.example saml/idp/settings.json
-	./setup-secrets.sh
 
 lint:
 	. .venv/bin/activate && ${env} pylint app
@@ -42,9 +45,9 @@ test: venv setup
 	. .venv/bin/activate && ${env} pytest tests
 
 type-check:
-	. .venv/bin/activate && ${env} MYPYPATH=stubs/ mypy --show-error-codes app
+	. .venv/bin/activate && ${env} MYPYPATH=stubs/ mypy --disallow-untyped-defs --show-error-codes app
 
 coverage:
 	. .venv/bin/activate && ${env} coverage run -m pytest tests && coverage report && coverage html
 
-check-all: lint type-check test audit
+check-all: fix lint type-check test audit

@@ -1,4 +1,6 @@
-from typing import Union, Optional, Tuple, Any, List
+# mypy: disallow_untyped_defs = False
+
+from typing import Union, Optional
 
 import lxml
 from lxml import etree
