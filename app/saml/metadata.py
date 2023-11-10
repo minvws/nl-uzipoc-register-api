@@ -1,4 +1,6 @@
 # pylint: disable=c-extension-no-member
+# mypy: disallow_untyped_defs = False
+
 import datetime
 import secrets
 from typing import Dict, Optional, List

@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from app.router import router
 
 
-def run_app():
+def run_app() -> FastAPI:
     config = configparser.ConfigParser()
     config.read("app.conf")
 
@@ -25,7 +25,7 @@ def run_app():
     return fastapi
 
 
-def kwargs_from_config():
+def kwargs_from_config() -> dict:
     config = configparser.ConfigParser()
     config.read("app.conf")
     kwargs = {

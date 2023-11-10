@@ -86,7 +86,9 @@ class Service:
             )
         return response.json()
 
-    def _create_response(self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]):
+    def _create_response(
+        self, jwt_payload: Dict[str, Any], claims: Dict[str, Any]
+    ) -> Response:
         jwe_pub_key = load_pub_key_from_cert(claims["x5c"])
 
         jwt_payload["x5c"] = claims["x5c"]
@@ -138,7 +140,7 @@ class Service:
                     }
         return {}
 
-    def _get_claims_for_signed_jwt(self, uzi_jwt) -> Dict[str, Any]:
+    def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Dict[str, Any]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         return self._get_claims_from_register_by_uzi(
             fetched_claims["uzi_id"], fetched_claims["token"]
@@ -147,7 +149,7 @@ class Service:
     def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
         return self._get_claims_from_register_by_uzi(uzi_id)
 
-    def handle_exchange_request(self, request: Request):
+    def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
 
@@ -165,7 +167,7 @@ class Service:
     async def handle_saml_request(
         self,
         request: Request,
-    ):
+    ) -> Response:
         claims = self._get_request_claims(request)
         saml_message = await request.body()
         artifact_response = self._artifact_response_factory.from_string(
@@ -180,7 +182,7 @@ class Service:
         )
         return self._create_response(jwt_payload, claims)
 
-    def get_signed_uzi_number(self, uzi_number: str):
+    def get_signed_uzi_number(self, uzi_number: str) -> str:
         for entry in self._register:
             if entry["uzi_id"] == uzi_number:
                 return self._jwt_service.create_jwt(

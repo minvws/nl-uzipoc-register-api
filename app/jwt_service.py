@@ -8,24 +8,34 @@ from jwcrypto.jwe import JWE
 from jwcrypto.jwk import JWK
 from jwcrypto.jwt import JWT
 
+JWT_EXP_MARGIN = 60
+
+JWT_NBF_MARGIN = 10
+
+JWE_ENC = "A128CBC-HS256"
+JWE_ALG = "RSA-OAEP"
+JWE_CTY = "JWT"
+JWE_TYP = "JWT"
+JWT_ALG = "RS256"
+
 logger = logging.getLogger(__name__)
 
 
 class JwtService:
-    def __init__(self, jwt_priv_key: JWK, crt_kid: str):
+    def __init__(self, jwt_priv_key: JWK, crt_kid: str) -> None:
         self._jwt_priv_key = jwt_priv_key
         self._crt_kid = crt_kid
 
-    def create_jwt(self, payload: Dict[str, Any]):
+    def create_jwt(self, payload: Dict[str, Any]) -> str:
         return create_jwt(self._jwt_priv_key, self._crt_kid, payload)
 
-    def create_jwe(self, jwe_enc_pub_key: JWK, payload: Dict[str, Any]):
+    def create_jwe(self, jwe_enc_pub_key: JWK, payload: Dict[str, Any]) -> str:
         return create_jwe(self._jwt_priv_key, self._crt_kid, jwe_enc_pub_key, payload)
 
-    def from_jwt(self, jwt_pub_key: JWK, jwt: str):
+    def from_jwt(self, jwt_pub_key: JWK, jwt: str) -> Dict[str, Any]:
         return from_jwt(jwt_pub_key, jwt)
 
-    def from_jwe(self, jwt_pub_key: JWK, jwe: str):
+    def from_jwe(self, jwt_pub_key: JWK, jwe: str) -> Dict[str, Any]:
         return from_jwe(self._jwt_priv_key, jwt_pub_key, jwe)
 
 
@@ -47,14 +57,14 @@ def create_jwt(
     payload: Dict[str, Any],
 ) -> str:
     jwt_header = {
-        "alg": "RS256",
+        "alg": JWT_ALG,
         "x5t": jwt_priv_key.thumbprint(hashes.SHA256()),
         "kid": crt_kid,
     }
     jwt_payload = {
         **{
-            "nbf": int(time.time()) - 10,
-            "exp": int(time.time()) + 60,
+            "nbf": int(time.time()) - JWT_NBF_MARGIN,
+            "exp": int(time.time()) + JWT_EXP_MARGIN,
         },
         **payload,
     }
@@ -75,10 +85,10 @@ def create_jwe(
     jwt_token = create_jwt(jwt_priv_key, crt_kid, payload)
 
     jwe_header = {
-        "typ": "JWT",
-        "cty": "JWT",
-        "alg": "RSA-OAEP",
-        "enc": "A128CBC-HS256",
+        "typ": JWE_TYP,
+        "cty": JWE_CTY,
+        "alg": JWE_ALG,
+        "enc": JWE_ENC,
         "x5t": jwt_priv_key.thumbprint(hashes.SHA256()),
     }
 

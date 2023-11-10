@@ -45,7 +45,7 @@ test: venv setup
 	. .venv/bin/activate && ${env} pytest tests
 
 type-check:
-	. .venv/bin/activate && ${env} MYPYPATH=stubs/ mypy --show-error-codes app
+	. .venv/bin/activate && ${env} MYPYPATH=stubs/ mypy --disallow-untyped-defs --show-error-codes app
 
 coverage:
 	. .venv/bin/activate && ${env} coverage run -m pytest tests && coverage report && coverage html

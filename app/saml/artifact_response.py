@@ -1,3 +1,4 @@
+# mypy: disallow_untyped_defs = False
 """
 Handles parsing of Artifact responses, validating the signature among other validity checks.
 todo: check class for tests and comments like required settings
