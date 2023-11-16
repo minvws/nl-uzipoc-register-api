@@ -158,9 +158,10 @@ class Service:
         else:
             jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
-        jwt_payload["relations"] = Service.filter_relations(
-            jwt_payload["relations"], claims["ura"].split(",")
-        )
+        if "relations" in jwt_payload:
+            jwt_payload["relations"] = Service.filter_relations(
+                jwt_payload["relations"], claims["ura"].split(",")
+            )
 
         return self._create_response(jwt_payload, claims)
 
