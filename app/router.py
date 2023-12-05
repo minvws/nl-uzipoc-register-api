@@ -34,5 +34,4 @@ async def get_signed_uzi(
     service: Service = Depends(lambda: service_),
 ) -> Response:
     signed_uzi_number = service.get_signed_uzi_number(uzi_number)
-    if signed_uzi_number is not None:
-        return JSONResponse({"signed_uzi_number": signed_uzi_number})
+    return JSONResponse({"signed_uzi_number": signed_uzi_number})
