@@ -144,9 +144,7 @@ class Service:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
         token = fetched_claims["token"] if "token" in fetched_claims else None
-        return self._get_claims_from_register_by_uzi(
-            uzi_id, token
-        )
+        return self._get_claims_from_register_by_uzi(uzi_id, token)
 
     def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
         return self._get_claims_from_register_by_uzi(uzi_id)
