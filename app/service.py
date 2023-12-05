@@ -119,12 +119,12 @@ class Service:
         return self._get_claims_from_register("bsn", bsn, token)
 
     def _get_claims_from_register_by_uzi(
-        self, uzi: str, token: Union[str, None] = None
+        self, uzi: Union[str, None], token: Union[str, None] = None
     ) -> Dict[str, Any]:
         return self._get_claims_from_register("uzi_id", uzi, token)
 
     def _get_claims_from_register(
-        self, key: str, value: str, token: Union[str, None] = None
+        self, key: str, value: Union[str, None], token: Union[str, None] = None
     ) -> Dict[str, Any]:
         for entry in self._register:
             if entry[key] == value:
@@ -142,9 +142,9 @@ class Service:
 
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Dict[str, Any]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-        return self._get_claims_from_register_by_uzi(
-            fetched_claims["uzi_id"], fetched_claims["token"]
-        )
+        uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
+        token = fetched_claims["token"] if "token" in fetched_claims else None
+        return self._get_claims_from_register_by_uzi(uzi_id, token)
 
     def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
         return self._get_claims_from_register_by_uzi(uzi_id)
