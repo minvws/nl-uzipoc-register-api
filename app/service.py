@@ -97,8 +97,8 @@ class Service:
             jwt_payload["iss"] = claims["req_iss"]
         if "req_aud" in claims:
             jwt_payload["aud"] = claims["req_aud"]
-        if "req_acme_token" in claims:
-            jwt_payload["acme_token"] = claims["req_acme_token"]
+        if "req_acme_tokens" in claims:
+            jwt_payload["acme_tokens"] = claims["req_acme_tokens"]
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
 
