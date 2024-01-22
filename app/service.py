@@ -132,7 +132,7 @@ class Service:
                     return {
                         "loa_uzi": entry["loa_uzi"],
                         "loa_authn": entry["loa_authn"],
-                        "uzi_id": entry["uzi_id"],
+                        "sub": entry["uzi_id"],
                         "initials": entry["initials"],
                         "surname_prefix": entry["surname_prefix"],
                         "surname": entry["surname"],
