@@ -17,6 +17,8 @@ from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert
 
+from uuid import uuid4
+
 logger = logging.getLogger(__name__)
 
 
@@ -106,6 +108,8 @@ class Service:
         jwt_payload["loa_authn"] = claims.get(
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
+        # add an uuid for the subject of the session
+        jwt_payload["sub"] = str(uuid4())
 
         jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
@@ -132,7 +136,7 @@ class Service:
                     return {
                         "loa_uzi": entry["loa_uzi"],
                         "loa_authn": entry["loa_authn"],
-                        "sub": entry["uzi_id"],
+                        "uzi_id": entry["uzi_id"],
                         "initials": entry["initials"],
                         "surname_prefix": entry["surname_prefix"],
                         "surname": entry["surname"],
