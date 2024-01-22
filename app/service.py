@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from typing import Dict, Any, List, Union
+from uuid import uuid4
 
 import requests
 from fastapi import HTTPException
@@ -16,8 +17,6 @@ from app.exceptions import UnauthorizedError
 from app.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert
-
-from uuid import uuid4
 
 logger = logging.getLogger(__name__)
 
