@@ -17,6 +17,8 @@ from app.services.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert
 
+from app.models.identity import Identity
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +33,7 @@ class RegisterService:
         jwt_pub_key: JWK,
         max_crt_path: JWK,
         login_controller_session_url: str,
-        register: List[Dict[str, Any]],
+        register: List[Identity],
         jwt_service: JwtService,
         allow_plain_uzi_id: bool,
     ):
@@ -106,7 +108,7 @@ class RegisterService:
         jwt_payload["loa_authn"] = claims.get(
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
-
+        print(jwt_payload)
         jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
             "Authorization": f"Bearer {jwe_token}",
@@ -126,18 +128,10 @@ class RegisterService:
     def _get_claims_from_register(
         self, key: str, value: Union[str, None], token: Union[str, None] = None
     ) -> Dict[str, Any]:
-        for entry in self._register:
-            if entry[key] == value:
-                if token is None or entry["token"] == token:
-                    return {
-                        "loa_uzi": entry["loa_uzi"],
-                        "loa_authn": entry["loa_authn"],
-                        "uzi_id": entry["uzi_id"],
-                        "initials": entry["initials"],
-                        "surname_prefix": entry["surname_prefix"],
-                        "surname": entry["surname"],
-                        "relations": entry["relations"],
-                    }
+        for identity in self._register:
+            if identity[key] == value:
+                if token is None or identity["token"] == token:
+                    return identity.to_dict()
         return {}
 
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Dict[str, Any]:
@@ -159,8 +153,9 @@ class RegisterService:
             jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
         if "relations" in jwt_payload:
-            jwt_payload["relations"] = RegisterService.filter_relations(
-                jwt_payload["relations"], claims["ura"].split(",")
+            relations = jwt_payload["relations"]
+            jwt_payload["relations"] = self.filter_relations(
+                relations, claims["ura"].split(",")
             )
 
         return self._create_response(jwt_payload, claims)

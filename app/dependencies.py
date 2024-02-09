@@ -5,6 +5,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from packaging.version import parse as version_parse
 
 from app.config import config
+from app.models.identity import Identity, Relation
 from app.services.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
@@ -13,6 +14,7 @@ from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,
     load_jwk,
+    read_register_file,
 )
 
 
@@ -21,9 +23,19 @@ def load_saml_file(filepath: str) -> Dict[str, Any]:
         return json.loads(file.read())
 
 
-def load_register_file(filepath: str) -> List[Dict[str, Any]]:
-    with open(filepath, encoding="utf-8") as file:
-        return json.loads(file.read())
+def load_register(filepath: str) -> List[Identity]:
+    register_data = read_register_file(filepath)
+    register_list = []
+    for entry in register_data:
+        identity_data = entry.copy()
+        relations = (
+            [Relation(**r) for r in entry["relations"]]
+            if "relations" in identity_data
+            else []
+        )
+        identity_data["relations"] = relations
+        register_list.append(Identity(**identity_data))
+    return register_list
 
 
 expected_issuer = config.get("app", "expected_issuer")
@@ -39,7 +51,7 @@ max_crt_path = load_jwk(config.get("app", "max_crt_path"))
 
 login_controller_session_url = config.get("app", "login_controller_session_url")
 
-register_ = load_register_file(config.get("app", "register_path"))
+register_ = load_register(config.get("app", "register_path"))
 
 allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
@@ -87,7 +99,7 @@ artifact_response_factory_ = ArtifactResponseFactory(
     insecure=saml_settings_.get("insecure", False) is True,
 )
 
-service_ = RegisterService(
+register_service_ = RegisterService(
     artifact_response_factory=artifact_response_factory_,
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,

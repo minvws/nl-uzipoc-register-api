@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, Request
 from starlette.responses import JSONResponse, Response
 
-from app.dependencies import service_
+from app.dependencies import register_service_
 from app.services.register_service import RegisterService
 
 router = APIRouter()
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 @router.post("/get-uzi-by-exchange")
 def get_uzi_by_exchange(
     request: Request,
-    service: RegisterService = Depends(lambda: service_),
+    service: RegisterService = Depends(lambda: register_service_),
 ) -> Response:
     return service.handle_exchange_request(request)
 
@@ -23,7 +23,7 @@ def get_uzi_by_exchange(
 @router.post("/get-uzi")
 async def get_uzi_by_digid_artifact(
     request: Request,
-    service: RegisterService = Depends(lambda: service_),
+    service: RegisterService = Depends(lambda: register_service_),
 ) -> Response:
     return await service.handle_saml_request(request)
 
@@ -31,7 +31,7 @@ async def get_uzi_by_digid_artifact(
 @router.get("/signed-uzi")
 async def get_signed_uzi(
     uzi_number: str,
-    service: RegisterService = Depends(lambda: service_),
+    service: RegisterService = Depends(lambda: register_service_),
 ) -> Response:
     signed_uzi_number = service.get_signed_uzi_number(uzi_number)
     return JSONResponse({"signed_uzi_number": signed_uzi_number})

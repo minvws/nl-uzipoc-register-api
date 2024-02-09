@@ -15,7 +15,7 @@ class Relation:
         self.entity_name = entity_name
         self.roles = roles
 
-    def get_relation(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {"ura": self.ura, "entity_name": self.entity_name, "roles": self.roles}
 
 
@@ -59,15 +59,15 @@ class Identity:
     def __getitem__(self, key: str) -> Any:
         return getattr(self, key)
 
-    def get_identity(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "bsn": self.bsn,
             "loa_uzi": self.loa_uzi,
             "loa_authn": self.loa_authn,
             "token": self.token,
-            "uzi_id": self,
+            "uzi_id": self.uzi_id,
             "initials": self.initials,
             "surname_prefix": self.surname_prefix,
             "surname": self.surname,
-            "relations": [x.get_relation() for x in self.relations],
+            "relations": [x.to_dict() for x in self.relations],
         }
