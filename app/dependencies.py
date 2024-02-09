@@ -8,7 +8,7 @@ from app.config import config
 from app.services.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
-from app.services.service import Service
+from app.services.register_service import RegisterService
 from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,
@@ -87,7 +87,7 @@ artifact_response_factory_ = ArtifactResponseFactory(
     insecure=saml_settings_.get("insecure", False) is True,
 )
 
-service_ = Service(
+service_ = RegisterService(
     artifact_response_factory=artifact_response_factory_,
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,

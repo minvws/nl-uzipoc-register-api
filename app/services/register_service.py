@@ -20,7 +20,7 @@ from app.utils import load_pub_key_from_cert
 logger = logging.getLogger(__name__)
 
 
-class Service:
+class RegisterService:
     # pylint: disable=too-many-arguments
     def __init__(
         self,
@@ -159,7 +159,7 @@ class Service:
             jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
         if "relations" in jwt_payload:
-            jwt_payload["relations"] = Service.filter_relations(
+            jwt_payload["relations"] = RegisterService.filter_relations(
                 jwt_payload["relations"], claims["ura"].split(",")
             )
 
@@ -178,7 +178,7 @@ class Service:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
         jwt_payload = self._get_claims_from_register_by_bsn(bsn)
-        jwt_payload["relations"] = Service.filter_relations(
+        jwt_payload["relations"] = RegisterService.filter_relations(
             jwt_payload["relations"], claims["ura"].split(",")
         )
         return self._create_response(jwt_payload, claims)

@@ -3,7 +3,7 @@ from typing import List, Optional, Any, Dict
 
 class Relation:
     """
-    Represents a relationship inside an identity class
+    Represents a relationship inside an identity class.
     """
 
     ura: str
@@ -16,17 +16,14 @@ class Relation:
         self.roles = roles
 
     def get_relation(self) -> Dict[str, Any]:
-        return {
-            "ura": self.ura,
-            "entity_name": self.entity_name,
-            "roles": self.roles
-        }
+        return {"ura": self.ura, "entity_name": self.entity_name, "roles": self.roles}
 
 
 class Identity:
     """
-    Represents a identity for a user in the Register
+    Represents a identity for a user in the Register.
     """
+
     bsn: str
     loa_uzi: str
     loa_authn: str
@@ -47,7 +44,7 @@ class Identity:
         initials: Optional[str],
         surname_prefix: Optional[str],
         surname: Optional[str],
-        relations: List[Relation]
+        relations: List[Relation],
     ):
         self.bsn = bsn
         self.loa_uzi = loa_uzi
@@ -72,7 +69,5 @@ class Identity:
             "initials": self.initials,
             "surname_prefix": self.surname_prefix,
             "surname": self.surname,
-            "relations": [x.get_relation() for x in self.relations]
+            "relations": [x.get_relation() for x in self.relations],
         }
-
-
