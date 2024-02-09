@@ -5,10 +5,10 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from packaging.version import parse as version_parse
 
 from app.config import config
-from app.jwt_service import JwtService
+from app.services.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
-from app.service import Service
+from app.services.service import Service
 from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,

@@ -13,7 +13,7 @@ from jwcrypto.jwt import JWT
 from starlette.responses import Response
 
 from app.exceptions import UnauthorizedError
-from app.jwt_service import JwtService
+from app.services.jwt_service import JwtService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.utils import load_pub_key_from_cert
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Request
 from starlette.responses import JSONResponse, Response
 
 from app.dependencies import service_
-from app.service import Service
+from app.services.service import Service
 
 router = APIRouter()
 

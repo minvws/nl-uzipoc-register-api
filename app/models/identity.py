@@ -25,7 +25,7 @@ class Relation:
 
 class Identity:
     """
-    Represents a identity for a user
+    Represents a identity for a user in the Register
     """
     bsn: str
     loa_uzi: str

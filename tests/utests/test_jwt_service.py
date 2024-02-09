@@ -1,7 +1,7 @@
 import base64
 import json
 
-from app.jwt_service import JwtService
+from app.services.jwt_service import JwtService
 from app.utils import load_jwk, file_content_raise_if_none, kid_from_certificate
 
 
