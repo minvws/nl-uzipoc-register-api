@@ -36,8 +36,8 @@ class RequestHandlerService:
         register_service: RegisterService,
     ):
         self._artifact_response_factory = artifact_response_factory
-        self._expected_issuer = expected_issuer  # may be not needed
-        self._expected_audience = expected_audience  # may be not needed
+        self._expected_issuer = expected_issuer
+        self._expected_audience = expected_audience
         self._max_crt_path = max_crt_path
         self._jwt_pub_key = jwt_pub_key
         self._login_controller_session_url = login_controller_session_url
@@ -68,10 +68,6 @@ class RequestHandlerService:
         if hasattr(identity, "relations"):
             allowed_uras = claims["ura"].split(",")
             return self._create_response(identity.to_dict(allowed_uras), claims)
-            # relations = [r.to_dict() for r in identity.relations]
-            # identity.relations = self.filter_relations(
-            #     relations, claims["ura"].split(",")
-            # )
 
         return self._create_response(identity.to_dict(), claims)
 
