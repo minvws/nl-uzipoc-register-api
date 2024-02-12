@@ -30,6 +30,7 @@ class RequestHandlerService:
         expected_audience: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
+        userinfo_token_exp: int,
         login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
@@ -44,6 +45,7 @@ class RequestHandlerService:
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
+        self._userinfo_token_exp = userinfo_token_exp*24*60*60 # from days to seconds
 
     def get_signed_uzi_number(self, uzi_number: str) -> str:
         identity = self._register_service.get_claims_from_register_by_uzi(uzi_number)
@@ -53,6 +55,14 @@ class RequestHandlerService:
         return self._jwt_service.create_jwt(
             {"uzi_id": identity.uzi_id, "token": identity.token}
         )
+
+    def get_signed_userinfo_token(self, bsn: int) -> str:
+        identity = self._register_service.get_claims_from_register_by_bsn(bsn)
+        token = {
+            "bsn": identity.bsn,
+            "token": identity.token
+        }
+        return self._jwt_service.create_jwt(token, self._userinfo_token_exp)
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)

@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from cryptography.hazmat.primitives import hashes
 from jwcrypto.jwe import JWE
@@ -26,8 +26,8 @@ class JwtService:
         self._jwt_priv_key = jwt_priv_key
         self._crt_kid = crt_kid
 
-    def create_jwt(self, payload: Dict[str, Any]) -> str:
-        return create_jwt(self._jwt_priv_key, self._crt_kid, payload)
+    def create_jwt(self, payload: Dict[str, Any], exp: Optional[int] = None) -> str:
+        return create_jwt(self._jwt_priv_key, self._crt_kid, payload, exp)
 
     def create_jwe(self, jwe_enc_pub_key: JWK, payload: Dict[str, Any]) -> str:
         return create_jwe(self._jwt_priv_key, self._crt_kid, jwe_enc_pub_key, payload)
@@ -55,7 +55,10 @@ def create_jwt(
     jwt_priv_key: JWK,
     crt_kid: str,
     payload: Dict[str, Any],
+    exp_time: Optional[int] = None
 ) -> str:
+    nbf = int(time.time()) - JWT_NBF_MARGIN
+    exp = int(time.time()) + exp_time if exp_time is not None else int(time.time()) + JWT_EXP_MARGIN
     jwt_header = {
         "alg": JWT_ALG,
         "x5t": jwt_priv_key.thumbprint(hashes.SHA256()),
@@ -63,8 +66,8 @@ def create_jwt(
     }
     jwt_payload = {
         **{
-            "nbf": int(time.time()) - JWT_NBF_MARGIN,
-            "exp": int(time.time()) + JWT_EXP_MARGIN,
+            "nbf": nbf,
+            "exp": exp,
         },
         **payload,
     }
