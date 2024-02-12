@@ -5,14 +5,18 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from packaging.version import parse as version_parse
 
 from app.config import config
-from app.jwt_service import JwtService
+from app.models.identity import Identity
+from app.models.relation import Relation
+from app.services.jwt_service import JwtService
+from app.services.request_handler_service import RequestHandlerService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
-from app.service import Service
+from app.services.register_service import RegisterService
 from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,
     load_jwk,
+    json_from_file,
 )
 
 
@@ -21,9 +25,19 @@ def load_saml_file(filepath: str) -> Dict[str, Any]:
         return json.loads(file.read())
 
 
-def load_register_file(filepath: str) -> List[Dict[str, Any]]:
-    with open(filepath, encoding="utf-8") as file:
-        return json.loads(file.read())
+def load_register(filepath: str) -> List[Identity]:
+    register_data = json_from_file(filepath)
+    register_list = []
+    for entry in register_data:
+        identity_data = entry.copy()
+        relations = (
+            [Relation(**r) for r in entry["relations"]]
+            if "relations" in identity_data
+            else []
+        )
+        identity_data["relations"] = relations
+        register_list.append(Identity(**identity_data))
+    return register_list
 
 
 expected_issuer = config.get("app", "expected_issuer")
@@ -39,7 +53,7 @@ max_crt_path = load_jwk(config.get("app", "max_crt_path"))
 
 login_controller_session_url = config.get("app", "login_controller_session_url")
 
-register_ = load_register_file(config.get("app", "register_path"))
+register_ = load_register(config.get("app", "register_path"))
 
 allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
@@ -87,15 +101,18 @@ artifact_response_factory_ = ArtifactResponseFactory(
     insecure=saml_settings_.get("insecure", False) is True,
 )
 
-service_ = Service(
+register_service_ = RegisterService(
+    register=register_,
+)
+
+request_handler_service_ = RequestHandlerService(
     artifact_response_factory=artifact_response_factory_,
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
-    jwt_priv_key=jwt_priv_key,
-    jwt_pub_key=jwt_pub_key,
     max_crt_path=max_crt_path,
+    jwt_pub_key=jwt_pub_key,
     login_controller_session_url=login_controller_session_url,
-    register=register_,
-    jwt_service=jwt_service,
     allow_plain_uzi_id=allow_plain_uzi_id_,
+    jwt_service=jwt_service,
+    register_service=register_service_,
 )
