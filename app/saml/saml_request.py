@@ -76,7 +76,7 @@ class SAMLRequest:
         key = xmlsec.Key.from_memory(key_data, xmlsec.constants.KeyDataFormatPem)
         ctx.key = key
         ctx.register_id(node)
-        # ctx.sign(signature_node)
+        ctx.sign(signature_node)
 
         return node
 

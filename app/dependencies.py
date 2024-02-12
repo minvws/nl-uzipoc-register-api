@@ -101,16 +101,7 @@ artifact_response_factory_ = ArtifactResponseFactory(
 )
 
 register_service_ = RegisterService(
-    artifact_response_factory=artifact_response_factory_,
-    expected_issuer=expected_issuer,
-    expected_audience=expected_audience,
-    jwt_priv_key=jwt_priv_key,
-    jwt_pub_key=jwt_pub_key,
-    max_crt_path=max_crt_path,
-    login_controller_session_url=login_controller_session_url,
     register=register_,
-    jwt_service=jwt_service,
-    allow_plain_uzi_id=allow_plain_uzi_id_,
 )
 
 request_handler_service_ = RequestHandlerService(
@@ -118,8 +109,9 @@ request_handler_service_ = RequestHandlerService(
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
     max_crt_path=max_crt_path,
+    jwt_pub_key=jwt_pub_key,
     login_controller_session_url=login_controller_session_url,
     allow_plain_uzi_id=allow_plain_uzi_id_,
     jwt_service=jwt_service,
-    register_service=register_service_
+    register_service=register_service_,
 )

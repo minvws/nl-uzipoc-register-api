@@ -118,13 +118,16 @@ class Identity:
         return self._relations
 
     @relations.setter
-    def relations(self, relation: Relation) -> None:
-        if isinstance(relation, Relation):
-            self._relations.append(relation)
+    def relations(self, args: dict) -> None:
+        if isinstance(args, Relation):
+            self._relations.append(args)
+        else:
+            new_relation = Relation(**args)
+            self._relations.append(new_relation)
         raise TypeError("Invalid Type relation")
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
+    def to_dict(self, allowed_uras: Optional[List[str]] = None) -> Dict[str, Any]:
+        identity_as_dict = {
             "bsn": self.bsn,
             "loa_uzi": self.loa_uzi,
             "loa_authn": self.loa_authn,
@@ -135,6 +138,13 @@ class Identity:
             "surname": self.surname,
             "relations": [x.to_dict() for x in self.relations],
         }
+
+        if allowed_uras is not None:
+            relations = self.filter_relations(allowed_uras)
+            identity_as_dict["relations"] = relations
+            return identity_as_dict
+
+        return identity_as_dict
 
     def filter_relations(self, allowed_uras: List[str]) -> List[Dict[str, Any]]:
         """

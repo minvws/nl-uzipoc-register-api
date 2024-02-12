@@ -1,8 +1,8 @@
 import json
 import time
 import logging
+from typing import Dict, Any
 import requests
-from typing import Dict, Any, List
 
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi import HTTPException
@@ -17,6 +17,7 @@ from app.services.jwt_service import JwtService
 from app.services.register_service import RegisterService
 from app.utils import load_pub_key_from_cert
 from app.exceptions import UnauthorizedError
+from app.models.identity import Identity
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class RequestHandlerService:
         expected_issuer: str,
         expected_audience: str,
         max_crt_path: JWK,
+        jwt_pub_key: JWK,
         login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
@@ -37,28 +39,41 @@ class RequestHandlerService:
         self._expected_issuer = expected_issuer  # may be not needed
         self._expected_audience = expected_audience  # may be not needed
         self._max_crt_path = max_crt_path
+        self._jwt_pub_key = jwt_pub_key
         self._login_controller_session_url = login_controller_session_url
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
-        self.register_service = register_service
+        self._register_service = register_service
+
+    def get_signed_uzi_number(self, uzi_number: str) -> str:
+        identity = self._register_service.get_claims_from_register_by_uzi(uzi_number)
+        if identity is None:
+            return self._jwt_service.create_jwt({})
+
+        return self._jwt_service.create_jwt(
+            {"uzi_id": identity.uzi_id, "token": identity.token}
+        )
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
-        uzi_id = fetched["uzi_id"]
 
         if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
-            identity = self.register_service._get_claims_from_register_by_uzi(uzi_id)
-        else:
-            identity = self.register_service._get_claims_for_signed_jwt(uzi_id)
-
-        if "relations" in identity:
-            relations = identity["relations"]
-            identity["relations"] = self.filter_relations(
-                relations, claims["ura"].split(",")
+            identity = self._register_service.get_claims_from_register_by_uzi(
+                fetched["uzi_id"]
             )
+        else:
+            identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
-        return self._create_response(identity, claims)
+        if hasattr(identity, "relations"):
+            allowed_uras = claims["ura"].split(",")
+            return self._create_response(identity.to_dict(allowed_uras), claims)
+            # relations = [r.to_dict() for r in identity.relations]
+            # identity.relations = self.filter_relations(
+            #     relations, claims["ura"].split(",")
+            # )
+
+        return self._create_response(identity.to_dict(), claims)
 
     async def handle_saml_request(
         self,
@@ -72,11 +87,9 @@ class RequestHandlerService:
         if claims["saml_id"] != artifact_response.root.attrib["ID"]:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
-        jwt_payload = self._get_claims_from_register_by_bsn(bsn)
-        jwt_payload["relations"] = RegisterService.filter_relations(
-            jwt_payload["relations"], claims["ura"].split(",")
-        )
-        return self._create_response(jwt_payload, claims)
+        identity = self._register_service.get_claims_from_register_by_bsn(bsn)
+        allowed_uras = claims["ura"].split(",")
+        return self._create_response(identity.to_dict(allowed_uras), claims)
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:
@@ -107,7 +120,6 @@ class RequestHandlerService:
                 "Invalid jwt received: %s", request.headers.get("Authorization")
             )
             raise UnauthorizedError("Invalid jwt received") from invalid_jws_object
-
 
     def _fetch_result(self, exchange_token: str) -> Any:
         response = requests.get(
@@ -145,11 +157,8 @@ class RequestHandlerService:
         }
         return Response(headers=headers)
 
-
-    @staticmethod
-    def filter_relations(
-        relations: List[Dict[str, Any]], allowed_uras: List[str]
-    ) -> List[Dict[str, Any]]:
-        if "*" in allowed_uras:
-            return relations
-        return [r for r in relations if r["ura"] in allowed_uras]
+    def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Identity:
+        fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
+        uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
+        token = fetched_claims["token"] if "token" in fetched_claims else None
+        return self._register_service.get_claims_from_register_by_uzi(uzi_id, token)
