@@ -7,6 +7,7 @@ from packaging.version import parse as version_parse
 from app.config import config
 from app.models.identity import Identity, Relation
 from app.services.jwt_service import JwtService
+from app.services.request_handler_service import RequestHandlerService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
 from app.services.register_service import RegisterService
@@ -110,4 +111,15 @@ register_service_ = RegisterService(
     register=register_,
     jwt_service=jwt_service,
     allow_plain_uzi_id=allow_plain_uzi_id_,
+)
+
+request_handler_service_ = RequestHandlerService(
+    artifact_response_factory=artifact_response_factory_,
+    expected_issuer=expected_issuer,
+    expected_audience=expected_audience,
+    max_crt_path=max_crt_path,
+    login_controller_session_url=login_controller_session_url,
+    allow_plain_uzi_id=allow_plain_uzi_id_,
+    jwt_service=jwt_service,
+    register_service=register_service_
 )

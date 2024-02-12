@@ -108,12 +108,46 @@ class RegisterService:
         jwt_payload["loa_authn"] = claims.get(
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
-        print(jwt_payload)
         jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
             "Authorization": f"Bearer {jwe_token}",
         }
         return Response(headers=headers)
+
+    def handle_exchange_request(self, request: Request) -> Response:
+        claims = self._get_request_claims(request)
+        fetched = self._fetch_result(claims.get("exchange_token", ""))
+
+        if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
+            identity = self._get_claims_from_register_by_uzi(fetched["uzi_id"])
+        else:
+            identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
+
+        if "relations" in identity:
+            relations = identity["relations"]
+            identity["relations"] = self.filter_relations(
+                relations, claims["ura"].split(",")
+            )
+
+        return self._create_response(identity, claims)
+
+    async def handle_saml_request(
+        self,
+        request: Request,
+    ) -> Response:
+        claims = self._get_request_claims(request)
+        saml_message = await request.body()
+        artifact_response = self._artifact_response_factory.from_string(
+            saml_message.decode("utf-8")
+        )
+        if claims["saml_id"] != artifact_response.root.attrib["ID"]:
+            raise HTTPException(status_code=403, detail="Saml id's dont match")
+        bsn = artifact_response.get_bsn(False)
+        jwt_payload = self._get_claims_from_register_by_bsn(bsn)
+        jwt_payload["relations"] = RegisterService.filter_relations(
+            jwt_payload["relations"], claims["ura"].split(",")
+        )
+        return self._create_response(jwt_payload, claims)
 
     def _get_claims_from_register_by_bsn(
         self, bsn: str, token: Union[str, None] = None
@@ -135,6 +169,7 @@ class RegisterService:
         return {}
 
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Dict[str, Any]:
+        # Here
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
         token = fetched_claims["token"] if "token" in fetched_claims else None
@@ -142,41 +177,6 @@ class RegisterService:
 
     def _get_claims_for_plain_uzi_id(self, uzi_id: str) -> Dict[str, Any]:
         return self._get_claims_from_register_by_uzi(uzi_id)
-
-    def handle_exchange_request(self, request: Request) -> Response:
-        claims = self._get_request_claims(request)
-        fetched = self._fetch_result(claims.get("exchange_token", ""))
-
-        if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
-            jwt_payload = self._get_claims_from_register_by_uzi(fetched["uzi_id"])
-        else:
-            jwt_payload = self._get_claims_for_signed_jwt(fetched["uzi_id"])
-
-        if "relations" in jwt_payload:
-            relations = jwt_payload["relations"]
-            jwt_payload["relations"] = self.filter_relations(
-                relations, claims["ura"].split(",")
-            )
-
-        return self._create_response(jwt_payload, claims)
-
-    async def handle_saml_request(
-        self,
-        request: Request,
-    ) -> Response:
-        claims = self._get_request_claims(request)
-        saml_message = await request.body()
-        artifact_response = self._artifact_response_factory.from_string(
-            saml_message.decode("utf-8")
-        )
-        if claims["saml_id"] != artifact_response.root.attrib["ID"]:
-            raise HTTPException(status_code=403, detail="Saml id's dont match")
-        bsn = artifact_response.get_bsn(False)
-        jwt_payload = self._get_claims_from_register_by_bsn(bsn)
-        jwt_payload["relations"] = RegisterService.filter_relations(
-            jwt_payload["relations"], claims["ura"].split(",")
-        )
-        return self._create_response(jwt_payload, claims)
 
     def get_signed_uzi_number(self, uzi_number: str) -> str:
         for entry in self._register:
