@@ -16,7 +16,7 @@ from app.utils import (
     file_content_raise_if_none,
     kid_from_certificate,
     load_jwk,
-    read_register_file,
+    json_from_file,
 )
 
 
@@ -26,7 +26,7 @@ def load_saml_file(filepath: str) -> Dict[str, Any]:
 
 
 def load_register(filepath: str) -> List[Identity]:
-    register_data = read_register_file(filepath)
+    register_data = json_from_file(filepath)
     register_list = []
     for entry in register_data:
         identity_data = entry.copy()

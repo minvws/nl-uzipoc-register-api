@@ -1,6 +1,6 @@
 import base64
 from os import path
-from typing import Union, List, Dict, Any
+from typing import Union, Any
 import json
 
 from cryptography.x509 import load_pem_x509_certificate
@@ -42,6 +42,5 @@ def load_jwk(filepath: str) -> JWK:
         return JWK.from_pem(file.read().encode("utf-8"))
 
 
-def read_register_file(filepath: str) -> List[Dict[str, Any]]:
-    with open(filepath, encoding="utf-8") as file:
-        return json.loads(file.read())
+def json_from_file(filepath: str) -> Any:
+    return json.loads(file_content_raise_if_none(filepath))
