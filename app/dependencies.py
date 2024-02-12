@@ -5,7 +5,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from packaging.version import parse as version_parse
 
 from app.config import config
-from app.models.identity import Identity, Relation
+from app.models.identity import Identity
+from app.models.relation import Relation
 from app.services.jwt_service import JwtService
 from app.services.request_handler_service import RequestHandlerService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
