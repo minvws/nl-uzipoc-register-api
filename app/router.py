@@ -39,9 +39,9 @@ async def get_signed_uzi(
 
 
 @router.get("/signed-userinfo")
-async def get_signed_bsn(
-    bsn_number: str,
+async def get_signed_userinfo(
+    bsn: str,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
 ) -> Response:
-    signed_bsn = service.get_signed_userinfo_token(bsn_number)
-    return JSONResponse({"signed_userinfo": signed_bsn})
+    signed_userinfo = service.get_signed_userinfo_token(bsn)
+    return JSONResponse({"signed_userinfo": signed_userinfo})

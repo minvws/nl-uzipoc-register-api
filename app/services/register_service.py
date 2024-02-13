@@ -26,9 +26,8 @@ class RegisterService:
     def _get_claims_from_register(
         self, key: str, value: Union[str, None], token: Union[str, None] = None
     ) -> Optional[Identity]:
-        lookup_identity = None
         for identity in self._register:
             if identity[key] == value:
                 if token is None or identity["token"] == token:
-                    lookup_identity = identity
-        return lookup_identity
+                    return identity
+        return None
