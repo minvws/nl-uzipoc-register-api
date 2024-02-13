@@ -61,7 +61,8 @@ class RequestHandlerService:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         token = {
             "bsn": identity.bsn,
-            "token": identity.token
+            "token": identity.token,
+            "iss": self._expected_issuer
         }
         return self._jwt_service.create_jwt(token, self._userinfo_token_exp)
 
