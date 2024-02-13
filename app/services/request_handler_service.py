@@ -48,6 +48,7 @@ class RequestHandlerService:
         self._userinfo_token_exp = userinfo_token_exp*24*60*60 # from days to seconds
 
     def get_signed_uzi_number(self, uzi_number: str) -> str:
+        # ToDo: Maybe not needed anymore
         identity = self._register_service.get_claims_from_register_by_uzi(uzi_number)
         if identity is None:
             return self._jwt_service.create_jwt({})
@@ -56,7 +57,7 @@ class RequestHandlerService:
             {"uzi_id": identity.uzi_id, "token": identity.token}
         )
 
-    def get_signed_userinfo_token(self, bsn: int) -> str:
+    def get_signed_userinfo_token(self, bsn: str) -> str:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         token = {
             "bsn": identity.bsn,
@@ -67,13 +68,12 @@ class RequestHandlerService:
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
-
-        if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
+        if self._allow_plain_uzi_id and len(fetched["bsn"]) < 16:
             identity = self._register_service.get_claims_from_register_by_uzi(
                 fetched["uzi_id"]
             )
         else:
-            identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
+            identity = self._get_claims_for_signed_jwt(fetched["bsn"])
 
         if hasattr(identity, "relations"):
             allowed_uras = claims["ura"].split(",")
@@ -165,6 +165,6 @@ class RequestHandlerService:
 
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Identity:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-        uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
+        bsn = fetched_claims["bsn"] if "bsn" in fetched_claims else None
         token = fetched_claims["token"] if "token" in fetched_claims else None
-        return self._register_service.get_claims_from_register_by_uzi(uzi_id, token)
+        return self._register_service.get_claims_from_register_by_bsn(bsn, token)
