@@ -55,7 +55,7 @@ login_controller_session_url = config.get("app", "login_controller_session_url")
 
 register_ = load_register(config.get("app", "register_path"))
 
-userinfo_token_exp = int(config.get("app", "userinfo_token_exp"))
+userinfo_token_exp_ = config.get("app", "userinfo_token_exp")
 
 allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
@@ -112,7 +112,7 @@ request_handler_service_ = RequestHandlerService(
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
     max_crt_path=max_crt_path,
-    userinfo_token_exp=userinfo_token_exp,
+    userinfo_token_exp=int(userinfo_token_exp_),
     jwt_pub_key=jwt_pub_key,
     login_controller_session_url=login_controller_session_url,
     allow_plain_uzi_id=allow_plain_uzi_id_,

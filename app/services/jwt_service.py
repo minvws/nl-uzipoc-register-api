@@ -55,10 +55,14 @@ def create_jwt(
     jwt_priv_key: JWK,
     crt_kid: str,
     payload: Dict[str, Any],
-    exp_time: Optional[int] = None
+    exp_time: Optional[int] = None,
 ) -> str:
     nbf = int(time.time()) - JWT_NBF_MARGIN
-    exp = int(time.time()) + exp_time if exp_time is not None else int(time.time()) + JWT_EXP_MARGIN
+    exp = (
+        int(time.time()) + exp_time
+        if exp_time is not None
+        else int(time.time()) + JWT_EXP_MARGIN
+    )
     jwt_header = {
         "alg": JWT_ALG,
         "x5t": jwt_priv_key.thumbprint(hashes.SHA256()),
