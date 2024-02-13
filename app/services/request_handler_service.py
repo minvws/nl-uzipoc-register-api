@@ -64,22 +64,26 @@ class RequestHandlerService:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         if identity is None:
             raise EntryNotFound("Entry not found in register")
+
+        userinfo_data = identity.to_dict()
+        userinfo_data.pop("bsn")
         token = {
-            "bsn": identity.bsn,
-            "token": identity.token,
             "iss": self._expected_issuer,
+            "aud": self._expected_audience,
+            **userinfo_data
         }
+
         return self._jwt_service.create_jwt(token, self._userinfo_token_exp)
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
-        if self._allow_plain_uzi_id and len(fetched["bsn"]) < 16:
+        if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
             identity = self._register_service.get_claims_from_register_by_uzi(
                 fetched["uzi_id"]
             )
         else:
-            identity = self._get_claims_for_signed_jwt(fetched["bsn"])
+            identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
         if identity is None:
             raise EntryNotFound("Entry not found in register")
@@ -177,6 +181,6 @@ class RequestHandlerService:
 
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Optional[Identity]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
-        bsn = fetched_claims["bsn"] if "bsn" in fetched_claims else None
+        uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
         token = fetched_claims["token"] if "token" in fetched_claims else None
-        return self._register_service.get_claims_from_register_by_bsn(bsn, token)
+        return self._register_service.get_claims_from_register_by_bsn(uzi_id, token)

@@ -1,7 +1,8 @@
 import logging
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse, Response
+from starlette.requests import Request
 
 from app.dependencies import request_handler_service_
 from app.services.request_handler_service import RequestHandlerService
@@ -37,10 +38,10 @@ async def get_signed_uzi(
     return JSONResponse({"signed_uzi_number": signed_uzi_number})
 
 
-@router.get("/signed-bsn")
+@router.get("/signed-userinfo")
 async def get_signed_bsn(
     bsn_number: str,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
 ) -> Response:
     signed_bsn = service.get_signed_userinfo_token(bsn_number)
-    return JSONResponse({"signed_bsn_number": signed_bsn})
+    return JSONResponse({"signed_userinfo": signed_bsn})
