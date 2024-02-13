@@ -70,7 +70,7 @@ class RequestHandlerService:
         token = {
             "iss": self._expected_issuer,
             "aud": self._expected_audience,
-            **userinfo_data
+            **userinfo_data,
         }
 
         return self._jwt_service.create_jwt(token, self._userinfo_token_exp)
