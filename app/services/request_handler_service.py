@@ -75,9 +75,6 @@ class RequestHandlerService:
         else:
             identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
-        if identity is None:
-            raise EntryNotFound("Entry not found in register")
-
         allowed_uras = claims["ura"].split(",") if "ura" in claims else None
         return self._create_response(
             identity.to_dict(allowed_uras) if identity is not None else {}, claims
