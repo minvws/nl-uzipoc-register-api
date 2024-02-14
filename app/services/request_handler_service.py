@@ -50,16 +50,6 @@ class RequestHandlerService:
             userinfo_token_exp * 24 * 60 * 60
         )  # from days to seconds
 
-    def get_signed_uzi_number(self, uzi_number: str) -> str:
-        # ToDo: Maybe not needed anymore
-        identity = self._register_service.get_claims_from_register_by_uzi(uzi_number)
-        if identity is None:
-            return self._jwt_service.create_jwt({})
-
-        return self._jwt_service.create_jwt(
-            {"uzi_id": identity.uzi_id, "token": identity.token}
-        )
-
     def get_signed_userinfo_token(self, bsn: str) -> str:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         if identity is None:

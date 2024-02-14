@@ -29,15 +29,6 @@ async def get_uzi_by_digid_artifact(
     return await service.handle_saml_request(request)
 
 
-@router.get("/signed-uzi")
-async def get_signed_uzi(
-    uzi_number: str,
-    service: RequestHandlerService = Depends(lambda: request_handler_service_),
-) -> Response:
-    signed_uzi_number = service.get_signed_uzi_number(uzi_number)
-    return JSONResponse({"signed_uzi_number": signed_uzi_number})
-
-
 @router.get("/signed-userinfo")
 async def get_signed_userinfo(
     bsn: str,
