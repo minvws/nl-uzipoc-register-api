@@ -78,11 +78,10 @@ class RequestHandlerService:
         if identity is None:
             raise EntryNotFound("Entry not found in register")
 
-        if hasattr(identity, "relations"):
-            allowed_uras = claims["ura"].split(",")
-            return self._create_response(identity.to_dict(allowed_uras), claims)
-
-        return self._create_response(identity.to_dict(), claims)
+        allowed_uras = claims["ura"].split(",") if "ura" in claims else None
+        return self._create_response(
+            identity.to_dict(allowed_uras) if identity is not None else {}, claims
+        )
 
     async def handle_saml_request(
         self,
@@ -97,11 +96,11 @@ class RequestHandlerService:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
-        allowed_uras = claims["ura"].split(",")
-        if identity is None:
-            raise EntryNotFound("Entry not found in register")
+        allowed_uras = claims["ura"].split(",") if "ura" in claims else None
 
-        return self._create_response(identity.to_dict(allowed_uras), claims)
+        return self._create_response(
+            identity.to_dict(allowed_uras) if identity is not None else {}, claims
+        )
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:

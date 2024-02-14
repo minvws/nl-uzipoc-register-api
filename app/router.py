@@ -1,11 +1,13 @@
 import logging
 
 from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
 from starlette.responses import JSONResponse, Response
 from starlette.requests import Request
 
 from app.dependencies import request_handler_service_
 from app.services.request_handler_service import RequestHandlerService
+from app.exceptions import EntryNotFound
 
 router = APIRouter()
 
