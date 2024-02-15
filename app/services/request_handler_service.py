@@ -50,7 +50,9 @@ class RequestHandlerService:
             userinfo_token_exp * 24 * 60 * 60
         )  # from days to seconds
 
-    def get_signed_userinfo_token(self, bsn: str, jwt_exp_offset: Optional[int] = None) -> str:
+    def get_signed_userinfo_token(
+        self, bsn: str, jwt_exp_offset: Optional[int] = None
+    ) -> str:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         if identity is None:
             raise EntryNotFound("Entry not found in register")
@@ -58,10 +60,9 @@ class RequestHandlerService:
         userinfo_data = identity.to_dict()
         userinfo_data.pop("bsn")
 
-        test = time.time() + jwt_exp_offset
-        print(test)
-
-        exp_value = jwt_exp_offset if jwt_exp_offset is not None else self._userinfo_token_exp
+        exp_value = (
+            jwt_exp_offset if jwt_exp_offset is not None else self._userinfo_token_exp
+        )
         token = {
             "iss": self._expected_issuer,
             "aud": self._expected_audience,
