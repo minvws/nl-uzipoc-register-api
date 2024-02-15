@@ -61,7 +61,7 @@ class Identity:
         return self._revocation_token
 
     @revocation_token.setter
-    def token(self, revocation_token: str) -> None:
+    def revocation_token(self, revocation_token: str) -> None:
         self._revocation_token = revocation_token
 
     @property

@@ -168,5 +168,4 @@ class RequestHandlerService:
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Optional[Identity]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
-        token = fetched_claims["token"] if "token" in fetched_claims else None
-        return self._register_service.get_claims_from_register_by_bsn(uzi_id, token)
+        return self._register_service.get_claims_from_register_by_bsn(uzi_id)

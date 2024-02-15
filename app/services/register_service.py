@@ -13,9 +13,7 @@ class RegisterService:
     ):
         self._register = register
 
-    def get_claims_from_register_by_bsn(
-        self, bsn: str, token: Union[str, None] = None
-    ) -> Optional[Identity]:
+    def get_claims_from_register_by_bsn(self, bsn: str) -> Optional[Identity]:
         return self._get_claims_from_register("bsn", bsn)
 
     def get_claims_from_register_by_uzi(
