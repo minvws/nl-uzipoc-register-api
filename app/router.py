@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from starlette.responses import JSONResponse, Response
@@ -32,7 +33,8 @@ async def get_uzi_by_digid_artifact(
 @router.get("/signed-userinfo")
 async def get_signed_userinfo(
     bsn: str,
+    offset_seconds: Optional[int] = None,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
 ) -> Response:
-    signed_userinfo = service.get_signed_userinfo_token(bsn)
+    signed_userinfo = service.get_signed_userinfo_token(bsn, offset_seconds)
     return JSONResponse({"signed_userinfo": signed_userinfo})
