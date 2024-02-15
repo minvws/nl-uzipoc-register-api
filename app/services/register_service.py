@@ -16,18 +16,17 @@ class RegisterService:
     def get_claims_from_register_by_bsn(
         self, bsn: str, token: Union[str, None] = None
     ) -> Optional[Identity]:
-        return self._get_claims_from_register("bsn", bsn, token)
+        return self._get_claims_from_register("bsn", bsn)
 
     def get_claims_from_register_by_uzi(
-        self, uzi: Union[str, None], token: Union[str, None] = None
+        self, uzi: Union[str, None]
     ) -> Optional[Identity]:
-        return self._get_claims_from_register("uzi_id", uzi, token)
+        return self._get_claims_from_register("uzi_id", uzi)
 
     def _get_claims_from_register(
-        self, key: str, value: Union[str, None], token: Union[str, None] = None
+        self, key: str, value: Union[str, None]
     ) -> Optional[Identity]:
         for identity in self._register:
             if identity[key] == value:
-                if token is None or identity["token"] == token:
-                    return identity
+                return identity
         return None
