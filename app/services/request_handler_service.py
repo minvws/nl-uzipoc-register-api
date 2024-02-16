@@ -46,12 +46,12 @@ class RequestHandlerService:
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
-        self.userinfo_token_expiry_offset = (
+        self.default_zsm_validity_in_seconds = (
             default_zsm_validity_in_days * 24 * 60 * 60
         )  # from days to seconds
 
     def get_signed_userinfo_token(
-        self, bsn: str, jwt_exp_offset: Optional[int] = None
+        self, bsn: str, zsm_validity_in_seconds: Optional[int] = None
     ) -> str:
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         if identity is None:
@@ -61,9 +61,9 @@ class RequestHandlerService:
         userinfo_data.pop("bsn")
 
         exp_offset = (
-            jwt_exp_offset
-            if jwt_exp_offset is not None
-            else self.userinfo_token_expiry_offset
+            zsm_validity_in_seconds
+            if zsm_validity_in_seconds is not None
+            else self.default_zsm_validity_in_seconds
         )
         token = {
             "iss": self._expected_issuer,

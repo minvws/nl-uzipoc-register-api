@@ -55,7 +55,7 @@ login_controller_session_url = config.get("app", "login_controller_session_url")
 
 register_ = load_register(config.get("app", "register_path"))
 
-default_zsm_validity_in_days = config.get("app", "default_zsm_validity_in_days")
+DEFAULT_ZSM_VALIDITY_IN_DAYS = int(config.get("app", "default_zsm_validity_in_days"))
 
 allow_plain_uzi_id_ = config.get("app", "allow_plain_uzi_id", fallback="true") == "true"
 
@@ -112,7 +112,7 @@ request_handler_service_ = RequestHandlerService(
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
     max_crt_path=max_crt_path,
-    default_zsm_validity_in_days=int(default_zsm_validity_in_days),
+    default_zsm_validity_in_days=DEFAULT_ZSM_VALIDITY_IN_DAYS,
     jwt_pub_key=jwt_pub_key,
     login_controller_session_url=login_controller_session_url,
     allow_plain_uzi_id=allow_plain_uzi_id_,
