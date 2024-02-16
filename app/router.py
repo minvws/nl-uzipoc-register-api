@@ -33,8 +33,8 @@ async def get_uzi_by_digid_artifact(
 @router.get("/signed-userinfo")
 async def get_signed_userinfo(
     bsn: str,
-    offset_seconds: Optional[int] = None,
+    jwt_exp_offset: Optional[int] = None,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
 ) -> Response:
-    signed_userinfo = service.get_signed_userinfo_token(bsn, offset_seconds)
+    signed_userinfo = service.get_signed_userinfo_token(bsn, jwt_exp_offset)
     return JSONResponse({"signed_userinfo": signed_userinfo})

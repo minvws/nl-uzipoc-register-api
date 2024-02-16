@@ -60,7 +60,7 @@ class RequestHandlerService:
         userinfo_data = identity.to_dict()
         userinfo_data.pop("bsn")
 
-        exp_value = (
+        exp_offset = (
             jwt_exp_offset if jwt_exp_offset is not None else self._userinfo_token_exp
         )
         token = {
@@ -69,7 +69,7 @@ class RequestHandlerService:
             **userinfo_data,
         }
 
-        return self._jwt_service.create_jwt(token, exp_value)
+        return self._jwt_service.create_jwt(token, exp_offset)
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
