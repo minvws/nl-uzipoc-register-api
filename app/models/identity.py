@@ -12,7 +12,7 @@ class Identity:
         bsn: str,
         loa_uzi: str,
         loa_authn: str,
-        token: str,
+        revocation_token: str,
         uzi_id: str,
         initials: Optional[str],
         surname_prefix: Optional[str],
@@ -22,7 +22,7 @@ class Identity:
         self._bsn = bsn
         self._loa_uzi = loa_uzi
         self._loa_authn = loa_authn
-        self._token = token
+        self._revocation_token = revocation_token
         self._uzi_id = uzi_id
         self._initials = initials
         self._surname_prefix = surname_prefix
@@ -57,12 +57,12 @@ class Identity:
         self._loa_authn = loa_authn
 
     @property
-    def token(self) -> str:
-        return self._token
+    def revocation_token(self) -> str:
+        return self._revocation_token
 
-    @token.setter
-    def token(self, token: str) -> None:
-        self._token = token
+    @revocation_token.setter
+    def revocation_token(self, revocation_token: str) -> None:
+        self._revocation_token = revocation_token
 
     @property
     def uzi_id(self) -> str:
@@ -114,7 +114,7 @@ class Identity:
             "bsn": self.bsn,
             "loa_uzi": self.loa_uzi,
             "loa_authn": self.loa_authn,
-            "token": self.token,
+            "revocation_token": self.revocation_token,
             "uzi_id": self.uzi_id,
             "initials": self.initials,
             "surname_prefix": self.surname_prefix,

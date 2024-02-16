@@ -12,6 +12,9 @@ login_controller_session_url = http://localhost:8001/session
 
 register_path = mock_register.json
 
+# number of days set for userinfo token to expire
+default_zsm_validity_in_days = 14
+
 [saml]
 xml_templates_path = saml/templates/xml
 sp_settings_path = saml/idp/settings.json

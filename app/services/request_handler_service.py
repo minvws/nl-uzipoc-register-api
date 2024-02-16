@@ -1,7 +1,7 @@
 import json
 import time
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import requests
 
 from fastapi.security.utils import get_authorization_scheme_param
@@ -16,13 +16,14 @@ from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.services.jwt_service import JwtService
 from app.services.register_service import RegisterService
 from app.utils import load_pub_key_from_cert
-from app.exceptions import UnauthorizedError
+from app.exceptions import UnauthorizedError, EntryNotFound
 from app.models.identity import Identity
 
 logger = logging.getLogger(__name__)
 
 
 class RequestHandlerService:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         artifact_response_factory: ArtifactResponseFactory,
@@ -30,6 +31,7 @@ class RequestHandlerService:
         expected_audience: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
+        default_zsm_validity_in_days: int,
         login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
@@ -44,20 +46,36 @@ class RequestHandlerService:
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
+        self.default_zsm_validity_in_seconds = (
+            default_zsm_validity_in_days * 24 * 60 * 60
+        )  # from days to seconds
 
-    def get_signed_uzi_number(self, uzi_number: str) -> str:
-        identity = self._register_service.get_claims_from_register_by_uzi(uzi_number)
+    def get_signed_userinfo_token(
+        self, bsn: str, zsm_validity_in_seconds: Optional[int] = None
+    ) -> str:
+        identity = self._register_service.get_claims_from_register_by_bsn(bsn)
         if identity is None:
-            return self._jwt_service.create_jwt({})
+            raise EntryNotFound("Entry not found in register")
 
-        return self._jwt_service.create_jwt(
-            {"uzi_id": identity.uzi_id, "token": identity.token}
+        userinfo_data = identity.to_dict()
+        userinfo_data.pop("bsn")
+
+        exp_offset = (
+            zsm_validity_in_seconds
+            if zsm_validity_in_seconds is not None
+            else self.default_zsm_validity_in_seconds
         )
+        token = {
+            "iss": self._expected_issuer,
+            "aud": self._expected_audience,
+            **userinfo_data,
+        }
+
+        return self._jwt_service.create_jwt(token, exp_offset)
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         fetched = self._fetch_result(claims.get("exchange_token", ""))
-
         if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
             identity = self._register_service.get_claims_from_register_by_uzi(
                 fetched["uzi_id"]
@@ -65,11 +83,10 @@ class RequestHandlerService:
         else:
             identity = self._get_claims_for_signed_jwt(fetched["uzi_id"])
 
-        if hasattr(identity, "relations"):
-            allowed_uras = claims["ura"].split(",")
-            return self._create_response(identity.to_dict(allowed_uras), claims)
-
-        return self._create_response(identity.to_dict(), claims)
+        allowed_uras = claims["ura"].split(",") if "ura" in claims else None
+        return self._create_response(
+            identity.to_dict(allowed_uras) if identity is not None else {}, claims
+        )
 
     async def handle_saml_request(
         self,
@@ -84,8 +101,11 @@ class RequestHandlerService:
             raise HTTPException(status_code=403, detail="Saml id's dont match")
         bsn = artifact_response.get_bsn(False)
         identity = self._register_service.get_claims_from_register_by_bsn(bsn)
-        allowed_uras = claims["ura"].split(",")
-        return self._create_response(identity.to_dict(allowed_uras), claims)
+        allowed_uras = claims["ura"].split(",") if "ura" in claims else None
+
+        return self._create_response(
+            identity.to_dict(allowed_uras) if identity is not None else {}, claims
+        )
 
     def _get_request_claims(self, request: Request) -> Dict[str, Any]:
         if request.headers.get("Authorization") is None:
@@ -153,8 +173,7 @@ class RequestHandlerService:
         }
         return Response(headers=headers)
 
-    def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Identity:
+    def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Optional[Identity]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
-        token = fetched_claims["token"] if "token" in fetched_claims else None
-        return self._register_service.get_claims_from_register_by_uzi(uzi_id, token)
+        return self._register_service.get_claims_from_register_by_bsn(uzi_id)
