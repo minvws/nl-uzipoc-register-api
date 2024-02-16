@@ -31,7 +31,7 @@ class RequestHandlerService:
         expected_audience: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
-        userinfo_token_expiry_offset: int,
+        default_zsm_validity_in_days: int,
         login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
@@ -47,7 +47,7 @@ class RequestHandlerService:
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
         self.userinfo_token_expiry_offset = (
-            userinfo_token_expiry_offset * 24 * 60 * 60
+            default_zsm_validity_in_days * 24 * 60 * 60
         )  # from days to seconds
 
     def get_signed_userinfo_token(
