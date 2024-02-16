@@ -31,7 +31,7 @@ class RequestHandlerService:
         expected_audience: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
-        userinfo_token_exp: int,
+        userinfo_token_expiry_offset: int,
         login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
@@ -46,8 +46,8 @@ class RequestHandlerService:
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
-        self._userinfo_token_exp = (
-            userinfo_token_exp * 24 * 60 * 60
+        self.userinfo_token_expiry_offset = (
+            userinfo_token_expiry_offset * 24 * 60 * 60
         )  # from days to seconds
 
     def get_signed_userinfo_token(
@@ -61,7 +61,9 @@ class RequestHandlerService:
         userinfo_data.pop("bsn")
 
         exp_offset = (
-            jwt_exp_offset if jwt_exp_offset is not None else self._userinfo_token_exp
+            jwt_exp_offset
+            if jwt_exp_offset is not None
+            else self.userinfo_token_expiry_offset
         )
         token = {
             "iss": self._expected_issuer,
