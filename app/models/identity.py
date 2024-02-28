@@ -137,4 +137,4 @@ class Identity:
         """
         if "*" in allowed_uras:
             return [r.to_dict() for r in self.relations]
-        return [r.to_dict() for r in self.relations if r.ura not in allowed_uras]
+        return [r.to_dict() for r in self.relations if r.ura in allowed_uras]
