@@ -1,6 +1,7 @@
 import base64
 from os import path
-from typing import Union
+from typing import Union, Any
+import json
 
 from cryptography.x509 import load_pem_x509_certificate
 from Cryptodome.Hash import SHA256
@@ -39,3 +40,7 @@ def load_pub_key_from_cert(content: str) -> JWK:
 def load_jwk(filepath: str) -> JWK:
     with open(filepath, encoding="utf-8") as file:
         return JWK.from_pem(file.read().encode("utf-8"))
+
+
+def json_from_file(filepath: str) -> Any:
+    return json.loads(file_content_raise_if_none(filepath))
