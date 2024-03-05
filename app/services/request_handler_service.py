@@ -2,7 +2,6 @@ import json
 import time
 import logging
 from typing import Dict, Any, Optional
-from typing import Dict, Any, List, Union
 from uuid import uuid4
 
 import requests
