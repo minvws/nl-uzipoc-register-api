@@ -164,13 +164,13 @@ class RequestHandlerService:
             jwt_payload["acme_tokens"] = claims["req_acme_tokens"]
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
+        if "sub" in claims:
+            jwt_payload["sub"] = claims["sub"]
 
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims.get(
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
-        # add an uuid for the subject of the session
-        jwt_payload["sub"] = str(uuid4())
 
         jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
