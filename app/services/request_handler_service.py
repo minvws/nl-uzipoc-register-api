@@ -163,8 +163,8 @@ class RequestHandlerService:
             jwt_payload["acme_tokens"] = claims["req_acme_tokens"]
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
-        if "sub" in claims:
-            jwt_payload["sub"] = claims["sub"]
+        if "req_sub" in claims:
+            jwt_payload["sub"] = claims["req_sub"]
 
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims.get(
