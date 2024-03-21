@@ -2,6 +2,7 @@ import json
 import time
 import logging
 from typing import Dict, Any, Optional
+
 import requests
 
 from fastapi.security.utils import get_authorization_scheme_param
@@ -162,11 +163,14 @@ class RequestHandlerService:
             jwt_payload["acme_tokens"] = claims["req_acme_tokens"]
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
+        if "req_sub" in claims:
+            jwt_payload["sub"] = claims["req_sub"]
 
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims.get(
             "loa_authn", jwt_payload.get("loa_authn", None)
         )
+
         jwe_token = self._jwt_service.create_jwe(jwe_pub_key, jwt_payload)
         headers = {
             "Authorization": f"Bearer {jwe_token}",
