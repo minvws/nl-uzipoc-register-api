@@ -1,0 +1,29 @@
+name: Version Build
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  sync-public:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+    - name: git
+      run: |
+        git --version
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+        if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then exit 1; fi
+        git config --unset-all http.https://github.com/.extraheader
+        git push https://$USERNAME:$REPO_SYNC_PUSH_TOKEN@github.com/minvws/nl-uzipoc-register-api
+        git push --tag $GITHUB_REF_NAME
+      env:
+        REPO_SYNC_PUSH_TOKEN: ${{secrets.REPO_SYNC_PUSH_TOKEN}}
+        USERNAME: github-actions[bot]
