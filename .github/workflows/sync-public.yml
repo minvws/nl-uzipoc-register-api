@@ -38,4 +38,4 @@ jobs:
 
         git config --unset-all http.https://github.com/.extraheader
         git remote add public git@github.com:minvws/nl-uzipoc-register-api.git
-        git push public $GITHUB_REF_NAME
+        git push --tags public $GITHUB_REF_NAME
