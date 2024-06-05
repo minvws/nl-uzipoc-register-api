@@ -77,8 +77,7 @@ class RequestHandlerService:
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         if "meta" in claims:
-            logger.debug("Request ip address: %s", claims["meta"]["ip"])
-            logger.debug("Request headers: %s", claims["meta"]["headers"])
+            logger.debug("Request from %s with headers: %s", claims["meta"]["ip"], claims["meta"]["headers"])
 
         fetched = self._fetch_result(claims.get("exchange_token", ""))
         if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
