@@ -76,6 +76,9 @@ class RequestHandlerService:
 
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
+        if "meta" in claims:
+            logger.info(f"Request meta: {claims['meta']}")
+
         fetched = self._fetch_result(claims.get("exchange_token", ""))
         if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
             identity = self._register_service.get_claims_from_register_by_uzi(
