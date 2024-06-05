@@ -77,7 +77,11 @@ class RequestHandlerService:
     def handle_exchange_request(self, request: Request) -> Response:
         claims = self._get_request_claims(request)
         if "meta" in claims:
-            logger.debug("Request from %s with headers: %s", claims["meta"]["ip"], claims["meta"]["headers"])
+            logger.debug(
+                "Request from %s with headers: %s",
+                claims["meta"]["ip"],
+                claims["meta"]["headers"],
+            )
 
         fetched = self._fetch_result(claims.get("exchange_token", ""))
         if self._allow_plain_uzi_id and len(fetched["uzi_id"]) < 16:
@@ -97,6 +101,13 @@ class RequestHandlerService:
         request: Request,
     ) -> Response:
         claims = self._get_request_claims(request)
+        if "meta" in claims:
+            logger.debug(
+                "Request from %s with headers: %s",
+                claims["meta"]["ip"],
+                claims["meta"]["headers"],
+            )
+
         saml_message = await request.body()
         artifact_response = self._artifact_response_factory.from_string(
             saml_message.decode("utf-8")
