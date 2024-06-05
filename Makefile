@@ -1,7 +1,7 @@
 env = env PATH="${bin}:$$PATH"
 
 venv: .venv/touchfile ## Create virtual environment
-.venv/touchfile:
+.venv/touchfile: ## Includes workaround for https://github.com/xmlsec/python-xmlsec/issues/320
 	test -d .venv || python3 -m venv .venv
 	. .venv/bin/activate; pip install -U pip
 	. .venv/bin/activate; pip install pip-tools
@@ -10,7 +10,6 @@ venv: .venv/touchfile ## Create virtual environment
 	. .venv/bin/activate && ${env} pip install -e .
 	. .venv/bin/activate && ${env} pip install --no-binary lxml==4.9.3 lxml==4.9.3 --force-reinstall
 	. .venv/bin/activate && ${env} pip install --no-binary xmlsec==1.3.14 xmlsec==1.3.14 --force-reinstall
-
 	touch .venv/touchfile
 
 clean_venv: ## Remove virtual environment
