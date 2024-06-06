@@ -13,6 +13,7 @@ from jwcrypto.jwt import JWT
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.constants import NBF_LEAP_SECONDS, EXP_LEAP_SECONDS
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.services.jwt_service import JwtService
 from app.services.register_service import RegisterService
@@ -30,6 +31,7 @@ class RequestHandlerService:
         artifact_response_factory: ArtifactResponseFactory,
         expected_issuer: str,
         expected_audience: str,
+        login_controller_jwt_issuer: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
         default_zsm_validity_in_days: int,
@@ -41,6 +43,7 @@ class RequestHandlerService:
         self._artifact_response_factory = artifact_response_factory
         self._expected_issuer = expected_issuer
         self._expected_audience = expected_audience
+        self._login_controller_jwt_issuer = login_controller_jwt_issuer
         self._max_crt_path = max_crt_path
         self._jwt_pub_key = jwt_pub_key
         self._login_controller_session_url = login_controller_session_url
@@ -153,8 +156,19 @@ class RequestHandlerService:
             raise UnauthorizedError("Invalid jwt received") from invalid_jws_object
 
     def _fetch_result(self, exchange_token: str) -> Any:
+        exchange_token_jwt = self._jwt_service.create_jwt(
+            payload={
+                "iss": self._expected_issuer,
+                "aud": self._login_controller_jwt_issuer,
+                "nbf": int(time.time()) - NBF_LEAP_SECONDS,
+                "exp": int(time.time()) + EXP_LEAP_SECONDS,
+                "exchange_token": exchange_token,
+            }
+        )
         response = requests.get(
-            f"{self._login_controller_session_url}/{exchange_token}/result", timeout=60
+            f"{self._login_controller_session_url}/results",
+            timeout=60,
+            headers={"Authorization": "Bearer " + exchange_token_jwt},
         )
         if response.status_code >= 400:
             raise UnauthorizedError(

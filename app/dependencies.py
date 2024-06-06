@@ -42,6 +42,7 @@ def load_register(filepath: str) -> List[Identity]:
 
 expected_issuer = config.get("app", "expected_issuer")
 expected_audience = config.get("app", "expected_audience")
+login_controller_jwt_issuer = config.get("app", "login_controller_jwt_issuer")
 
 jwt_crt_path = config.get("app", "jwt_crt_path")
 jwt_crt_content = file_content_raise_if_none(jwt_crt_path)
@@ -111,6 +112,7 @@ request_handler_service_ = RequestHandlerService(
     artifact_response_factory=artifact_response_factory_,
     expected_issuer=expected_issuer,
     expected_audience=expected_audience,
+    login_controller_jwt_issuer=login_controller_jwt_issuer,
     max_crt_path=max_crt_path,
     default_zsm_validity_in_days=DEFAULT_ZSM_VALIDITY_IN_DAYS,
     jwt_pub_key=jwt_pub_key,
