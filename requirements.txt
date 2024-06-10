@@ -155,7 +155,7 @@ typing-extensions==4.5.0
     #   starlette
 urllib3==1.26.18
     # via requests
-uvicorn==0.20.0
+uvicorn==0.30.1
     # via app (setup.py)
 wrapt==1.15.0
     # via
