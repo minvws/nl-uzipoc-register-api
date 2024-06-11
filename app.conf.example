@@ -15,6 +15,8 @@ register_path = mock_register.json
 # number of days set for userinfo token to expire
 default_zsm_validity_in_days = 14
 
+login_controller_jwt_issuer = nl-uzi-login-controller
+
 [saml]
 xml_templates_path = saml/templates/xml
 sp_settings_path = saml/idp/settings.json
