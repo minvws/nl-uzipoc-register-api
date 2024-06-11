@@ -6,7 +6,7 @@
 #
 anyio==3.6.2
     # via starlette
-astroid==2.14.2
+astroid==3.2.2
     # via pylint
 attrs==22.2.0
     # via pytest
