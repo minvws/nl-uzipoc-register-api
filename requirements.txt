@@ -94,7 +94,7 @@ platformdirs==3.0.0
     #   pylint
 pluggy==1.0.0
     # via pytest
-pycparser==2.21
+pycparser==2.22
     # via cffi
 pycryptodomex==3.20.0
     # via app (setup.py)
