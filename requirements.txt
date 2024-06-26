@@ -36,7 +36,7 @@ cryptography==42.0.4
     # via
     #   jwcrypto
     #   pyopenssl
-deprecated==1.2.13
+deprecated==1.2.14
     # via jwcrypto
 dill==0.3.6
     # via pylint
