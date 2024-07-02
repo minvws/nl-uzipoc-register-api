@@ -102,7 +102,7 @@ pydantic==1.10.13
     # via fastapi
 pyflakes==3.0.1
     # via autoflake
-pylint==2.16.2
+pylint==3.2.5
     # via app (setup.py)
 pyopenssl==23.0.0
     # via app (setup.py)
