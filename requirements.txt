@@ -104,7 +104,7 @@ pyflakes==3.0.1
     # via autoflake
 pylint==3.2.5
     # via app (setup.py)
-pyopenssl==23.0.0
+pyopenssl==24.1.0
     # via app (setup.py)
 pytest==7.2.1
     # via app (setup.py)
