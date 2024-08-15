@@ -40,9 +40,13 @@ def load_register(filepath: str) -> List[Identity]:
     return register_list
 
 
-expected_issuer = config.get("app", "expected_issuer")
-expected_audience = config.get("app", "expected_audience")
-login_controller_jwt_issuer = config.get("app", "login_controller_jwt_issuer")
+userinfo_request_jwt_issuer = config.get("app", "userinfo_request_jwt_issuer")
+userinfo_request_jwt_audience = config.get("app", "userinfo_request_jwt_audience")
+
+signed_userinfo_issuer = config.get("app", "signed_userinfo_issuer")
+
+session_result_jwt_issuer = config.get("app", "session_result_jwt_issuer")
+session_result_jwt_audience = config.get("app", "session_result_jwt_audience")
 
 jwt_crt_path = config.get("app", "jwt_crt_path")
 jwt_crt_content = file_content_raise_if_none(jwt_crt_path)
@@ -110,13 +114,15 @@ register_service_ = RegisterService(
 
 request_handler_service_ = RequestHandlerService(
     artifact_response_factory=artifact_response_factory_,
-    expected_issuer=expected_issuer,
-    expected_audience=expected_audience,
-    login_controller_jwt_issuer=login_controller_jwt_issuer,
+    userinfo_request_jwt_issuer=userinfo_request_jwt_issuer,
+    userinfo_request_jwt_audience=userinfo_request_jwt_audience,
+    signed_userinfo_issuer=signed_userinfo_issuer,
+    session_result_jwt_issuer=session_result_jwt_issuer,
+    session_result_jwt_audience=session_result_jwt_audience,
+    login_controller_session_url=login_controller_session_url,
     max_crt_path=max_crt_path,
     default_zsm_validity_in_days=DEFAULT_ZSM_VALIDITY_IN_DAYS,
     jwt_pub_key=jwt_pub_key,
-    login_controller_session_url=login_controller_session_url,
     allow_plain_uzi_id=allow_plain_uzi_id_,
     jwt_service=jwt_service,
     register_service=register_service_,

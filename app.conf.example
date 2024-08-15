@@ -1,6 +1,11 @@
 [app]
-expected_issuer = max
-expected_audience = uzipoc_register
+userinfo_request_jwt_issuer = max
+userinfo_request_jwt_audience = uzipoc_register
+
+session_result_jwt_issuer = uzipoc_register
+session_result_jwt_audience = nl-uzi-login-controller
+
+signed_userinfo_issuer = max
 
 jwt_priv_key_path = secrets/nl-uzipoc-register-api.key
 # Pub key to validate Signed UZI ID's
@@ -14,8 +19,6 @@ register_path = mock_register.json
 
 # number of days set for userinfo token to expire
 default_zsm_validity_in_days = 14
-
-login_controller_jwt_issuer = nl-uzi-login-controller
 
 [saml]
 xml_templates_path = saml/templates/xml
