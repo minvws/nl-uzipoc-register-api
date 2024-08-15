@@ -24,29 +24,34 @@ from app.models.identity import Identity
 logger = logging.getLogger(__name__)
 
 
+# pylint: disable=too-many-instance-attributes
 class RequestHandlerService:
     # pylint: disable=too-many-arguments
     def __init__(
         self,
         artifact_response_factory: ArtifactResponseFactory,
-        expected_issuer: str,
-        expected_audience: str,
-        login_controller_jwt_issuer: str,
+        userinfo_request_jwt_issuer: str,
+        userinfo_request_jwt_audience: str,
+        session_result_jwt_issuer: str,
+        session_result_jwt_audience: str,
+        signed_userinfo_issuer: str,
+        login_controller_session_url: str,
         max_crt_path: JWK,
         jwt_pub_key: JWK,
         default_zsm_validity_in_days: int,
-        login_controller_session_url: str,
         allow_plain_uzi_id: bool,
         jwt_service: JwtService,
         register_service: RegisterService,
     ):
         self._artifact_response_factory = artifact_response_factory
-        self._expected_issuer = expected_issuer
-        self._expected_audience = expected_audience
-        self._login_controller_jwt_issuer = login_controller_jwt_issuer
+        self._userinfo_request_jwt_issuer = userinfo_request_jwt_issuer
+        self._userinfo_request_jwt_audience = userinfo_request_jwt_audience
+        self._signed_userinfo_issuer = signed_userinfo_issuer
+        self._login_controller_session_url = login_controller_session_url
         self._max_crt_path = max_crt_path
         self._jwt_pub_key = jwt_pub_key
-        self._login_controller_session_url = login_controller_session_url
+        self._session_result_jwt_issuer = session_result_jwt_issuer
+        self._session_result_jwt_audience = session_result_jwt_audience
         self._jwt_service = jwt_service
         self._allow_plain_uzi_id = allow_plain_uzi_id
         self._register_service = register_service
@@ -70,8 +75,8 @@ class RequestHandlerService:
             else self.default_zsm_validity_in_seconds
         )
         token = {
-            "iss": self._expected_issuer,
-            "aud": self._expected_audience,
+            "iss": self._userinfo_request_jwt_issuer,
+            "aud": self._userinfo_request_jwt_audience,
             **userinfo_data,
         }
 
@@ -138,8 +143,8 @@ class RequestHandlerService:
                 jwt=raw_jwt,
                 key=self._max_crt_path,
                 check_claims={
-                    "iss": self._expected_issuer,
-                    "aud": self._expected_audience,
+                    "iss": self._userinfo_request_jwt_issuer,
+                    "aud": self._userinfo_request_jwt_audience,
                     "exp": time.time(),
                     "nbf": time.time(),
                 },
@@ -158,8 +163,8 @@ class RequestHandlerService:
     def _fetch_result(self, exchange_token: str) -> Any:
         exchange_token_jwt = self._jwt_service.create_jwt(
             payload={
-                "iss": self._expected_issuer,
-                "aud": self._login_controller_jwt_issuer,
+                "iss": self._session_result_jwt_issuer,
+                "aud": self._session_result_jwt_audience,
                 "nbf": int(time.time()) - NBF_LEAP_SECONDS,
                 "exp": int(time.time()) + EXP_LEAP_SECONDS,
                 "exchange_token": exchange_token,
