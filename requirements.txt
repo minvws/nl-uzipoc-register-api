@@ -38,7 +38,7 @@ cryptography==42.0.8
     #   pyopenssl
 deprecated==1.2.14
     # via jwcrypto
-dill==0.3.6
+dill==0.3.8
     # via pylint
 exceptiongroup==1.2.1
     # via pytest
