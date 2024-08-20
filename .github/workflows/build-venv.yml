@@ -21,6 +21,13 @@ jobs:
       - name: install requirements
         run: sudo apt-get update && sudo apt-get install libxmlsec1-dev
 
+      - name: Install dependencies
+        run:
+            sudo apt-get update
+            sudo apt-get install libxmlsec1-dev pkg-config
+            python -m pip install --upgrade pip setuptools wheel
+            pip install -r requirements.txt
+
       - name: prep
         run: sudo mkdir -p /var/www/html
 
