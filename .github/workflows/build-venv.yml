@@ -21,7 +21,7 @@ jobs:
 
       - name: Set package file name
         shell: bash
-        run: echo "PACKAGE_FILE_NAME=${{ env.PKG_NAME }}_venv_${{ env.RELEASE_VERSION }}_python${{ inputs.python_version }}" >> $GITHUB_ENV
+        run: echo "PACKAGE_FILE_NAME=${{ env.PKG_NAME }}_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install libxmlsec1-dev pkg-config
