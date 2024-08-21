@@ -22,7 +22,7 @@ def get_uzi_by_exchange(
     return service.handle_exchange_request(request)
 
 
-@router.post("/get-uzi")
+@router.get("/get-uzi")
 async def get_uzi_by_digid_artifact(
     request: Request,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
