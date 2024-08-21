@@ -189,16 +189,16 @@ class RequestHandlerService:
         jwt_payload["x5c"] = claims["x5c"]
         req_claims = claims["req_claims"]
 
-        if "req_iss" in req_claims:
-            jwt_payload["iss"] = req_claims["req_iss"]
-        if "req_aud" in req_claims:
-            jwt_payload["aud"] = req_claims["req_aud"]
-        if "req_acme_tokens" in req_claims:
-            jwt_payload["acme_tokens"] = req_claims["req_acme_tokens"]
+        if "iss" in req_claims:
+            jwt_payload["iss"] = req_claims["iss"]
+        if "aud" in req_claims:
+            jwt_payload["aud"] = req_claims["aud"]
+        if "sub" in req_claims:
+            jwt_payload["sub"] = req_claims["sub"]
+        if "acme_tokens" in req_claims:
+            jwt_payload["acme_tokens"] = req_claims["acme_tokens"]
         if "loa_authn" in claims:
             jwt_payload["loa_authn"] = claims["loa_authn"]
-        if "req_sub" in claims:
-            jwt_payload["sub"] = claims["req_sub"]
 
         jwt_payload["x5c"] = claims["x5c"]
         jwt_payload["loa_authn"] = claims.get(

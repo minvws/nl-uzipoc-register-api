@@ -14,7 +14,7 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@router.post("/get-uzi-by-exchange")
+@router.get("/get-uzi-by-exchange")
 def get_uzi_by_exchange(
     request: Request,
     service: RequestHandlerService = Depends(lambda: request_handler_service_),
