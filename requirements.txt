@@ -107,7 +107,7 @@ mypy-extensions==1.0.0
     #   mypy
 orjson==3.10.7
     # via fastapi
-packaging==23.0
+packaging==24.1
     # via
     #   black
     #   pytest
