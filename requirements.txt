@@ -135,7 +135,7 @@ pygments==2.18.0
     # via rich
 pylint==3.2.5
     # via app (setup.py)
-pyopenssl==24.1.0
+pyopenssl==24.2.1
     # via app (setup.py)
 pytest==7.2.1
     # via app (setup.py)
