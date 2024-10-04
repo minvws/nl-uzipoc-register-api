@@ -111,7 +111,6 @@ class Identity:
 
     def to_dict(self, allowed_uras: Optional[List[str]] = None) -> Dict[str, Any]:
         identity_as_dict = {
-            "bsn": self.bsn,
             "loa_uzi": self.loa_uzi,
             "loa_authn": self.loa_authn,
             "revocation_token": self.revocation_token,
