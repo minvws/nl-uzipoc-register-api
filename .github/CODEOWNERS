@@ -1,1 +1,3 @@
+# Last match takes precedence
 * @minvws/uzipoc-codeowners
+.github/CODEOWNERS @minvws/irealisatie-operations
