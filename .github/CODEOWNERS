@@ -1,2 +1,3 @@
-.github/CODEOWNERS @minvws/irealisatie-operations
+# The LAST matching line takes precedence.
 * @minvws/brba-python-codeowners
+.github/CODEOWNERS @minvws/irealisatie-operations
