@@ -1,15 +1,13 @@
-# mypy: disallow_untyped_defs = False
 """
 Handles parsing of Artifact responses, validating the signature among other validity checks.
 todo: check class for tests and comments like required settings
 Required settings:
 - settings.saml.response_expires_in, number of seconds a generated artifact response is considered valid
 """
+
 import base64
 import logging
-import re
 from datetime import datetime, timedelta
-from enum import Enum
 from functools import cached_property
 from logging import Logger
 

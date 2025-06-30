@@ -283,9 +283,9 @@ class IdPMetadata:
         self.template = new_root
 
         self.entity_id = self.template.attrib["entityID"]
-        self.keyname = self.template.find(
-            ".//md:IDPSSODescriptor//dsig:KeyName", NAMESPACES
-        ).text
+        self.keyname = self.template.findtext(
+            ".//md:IDPSSODescriptor//dsig:KeyName", namespaces=NAMESPACES
+        )
 
     def find_in_md(self, name: str):
         return self.template.find(
@@ -297,9 +297,12 @@ class IdPMetadata:
         return get_loc_bind(resolution_service)
 
     def get_cert_pem_data(self) -> str:
-        cert_data = self.template.find(
-            ".//md:IDPSSODescriptor//dsig:X509Certificate", NAMESPACES
-        ).text
+        cert_data = self.template.findtext(
+            ".//md:IDPSSODescriptor//dsig:X509Certificate", namespaces=NAMESPACES
+        )
+        if cert_data is None:
+            raise ValueError("No certificate found in IDPSSODescriptor")
+
         cert_data = enforce_cert_newlines(cert_data)
         return (
             f"""-----BEGIN CERTIFICATE-----\n{cert_data}\n-----END CERTIFICATE-----"""

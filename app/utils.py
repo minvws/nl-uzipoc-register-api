@@ -3,7 +3,8 @@ from os import path
 from typing import Union, Any
 import json
 
-from cryptography.x509 import load_pem_x509_certificate
+from cryptography import x509
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from Cryptodome.Hash import SHA256
 from Cryptodome.IO import PEM
 from jwcrypto.jwk import JWK
@@ -31,10 +32,16 @@ def kid_from_certificate(certificate: str) -> str:
 
 
 def load_pub_key_from_cert(content: str) -> JWK:
-    x509_cert = load_pem_x509_certificate(
+    x509_cert = x509.load_pem_x509_certificate(
         f"-----BEGIN CERTIFICATE-----{content}-----END CERTIFICATE-----".encode("utf-8")
     )
-    return JWK.from_pyca(x509_cert.public_key())
+
+    # Check public key type as JWK.from_pyca does not support all types that jwcrypto does
+    public_key = x509_cert.public_key()
+    if not isinstance(public_key, (rsa.RSAPublicKey, ec.EllipticCurvePublicKey)):
+        raise ValueError("Unsupported public key type in certificate")
+
+    return JWK.from_pyca(public_key)
 
 
 def load_jwk(filepath: str) -> JWK:

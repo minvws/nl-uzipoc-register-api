@@ -10,51 +10,24 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python_version: ['3.8','3.10','3.11']
+        python_version: [ '3.10','3.11.2' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV &&
+        run: |
           echo "PKG_NAME=`basename $GITHUB_REPOSITORY -private`" >> $GITHUB_ENV
-
-      - name: Set package file name
-        shell: bash
-        run: echo "PACKAGE_FILE_NAME=${{ env.PKG_NAME }}_venv_${{ env.RELEASE_VERSION }}_python${{ matrix.python_version }}" >> $GITHUB_ENV
+          echo "PIP_NO_BINARY=xmlsec,lxml" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install libxmlsec1-dev pkg-config
-
-      - name: Setup python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
-
-      - name: Create venv
-        shell: bash
         run: |
-          python -m venv .venv
-          . .venv/bin/activate
-          pip install -r requirements.txt
-          pip install --no-binary lxml==4.9.3 lxml==4.9.3 --force-reinstall
-          pip install --no-binary xmlsec==1.3.14 xmlsec==1.3.14 --force-reinstall
+          sudo apt-get update
+          sudo apt-get install libxmlsec1-dev pkg-config
 
-      - name: Fix python3 symlink - back to default location
-        shell: bash
-        run: cd .venv/bin && rm python3 python && ln -s /usr/bin/python3 python3 && ln -s /usr/bin/python python
-
-      - name: Add version file
-        shell: bash
-        run: 'echo "{ \"version\": \"${{ env.RELEASE_VERSION }}\", \"git_ref\": \"$GITHUB_SHA\"}" > .venv/version.json'
-
-      - name: Create archive
-        shell: bash
-        run: tar -czf ${{ env.PACKAGE_FILE_NAME }}.tar.gz .venv
-
-      - name: Upload venv tar
-        uses: actions/upload-artifact@v4
+      - name: Build venv package
+        uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/python-venv-package@main
         with:
-          name: ${{ env.PACKAGE_FILE_NAME }}
-          path: ${{ env.PACKAGE_FILE_NAME }}.tar.gz
-
+          python_version: ${{ matrix.python_version }}
+          checkout_repository: false
+          package_file_name: ${{ env.PKG_NAME }}

@@ -1,0 +1,50 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    tags: [ v* ]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python_version: [ '3.10','3.11.2' ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install libxmlsec1-dev pkg-config
+
+      - name: Run build action
+        uses: minvws/nl-irealisatie-generic-pipelines/.github/actions/poetry-install@main
+        with:
+          python_version: ${{ matrix.python_version }}
+
+      - name: Setup settings and secrets
+        run: make setup
+
+      - name: Lint with pylint
+        run: make lint
+
+      - name: Type check with MyPy
+        run: make type-check
+
+      - name: Audit with bandid
+        run: make audit
+
+      - name: Test
+        run: make test
