@@ -71,7 +71,7 @@ def get_referred_node(root, signature_node):
     return root.find(f'.//*[@ID="{referrer_id}"]', NAMESPACES)
 
 
-def get_parents(node: etree.Element) -> List[etree.Element]:
+def get_parents(node: etree._Element) -> List[etree._Element]:
     parent = node.getparent()
     parents = []
     while parent is not None:
@@ -80,7 +80,7 @@ def get_parents(node: etree.Element) -> List[etree.Element]:
     return parents
 
 
-def is_advice_node(node: etree.Element, advice_nodes: List[etree.Element]):
+def is_advice_node(node: etree._Element, advice_nodes: List[etree._Element]):
     for parent in get_parents(node):
         if parent in advice_nodes:
             return True
@@ -88,15 +88,17 @@ def is_advice_node(node: etree.Element, advice_nodes: List[etree.Element]):
 
 
 def has_valid_signatures(
-    root: etree,
+    root: etree._Element,
     cert_data: Union[str, None] = None,
     cert_path: Union[str, None] = None,
 ) -> Tuple[Any, bool]:
-    signature_nodes: List[etree.Element] = root.findall(".//dsig:Signature", NAMESPACES)
-    advice_nodes: List[etree.Element] = root.findall(".//saml2:Advice", NAMESPACES)
+    signature_nodes: List[etree._Element] = root.findall(
+        ".//dsig:Signature", NAMESPACES
+    )
+    advice_nodes: List[etree._Element] = root.findall(".//saml2:Advice", NAMESPACES)
     for node in signature_nodes:
         try:
-            if node.find(".//dsig:DigestValue", NAMESPACES).text is None:
+            if node.findtext(".//dsig:DigestValue", namespaces=NAMESPACES) is None:
                 continue
             if is_advice_node(node, advice_nodes):
                 continue

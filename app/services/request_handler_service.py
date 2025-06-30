@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-instance-attributes
 class RequestHandlerService:
     # pylint: disable=too-many-arguments
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         artifact_response_factory: ArtifactResponseFactory,
         userinfo_request_jwt_issuer: str,
@@ -214,4 +214,8 @@ class RequestHandlerService:
     def _get_claims_for_signed_jwt(self, uzi_jwt: str) -> Optional[Identity]:
         fetched_claims = self._jwt_service.from_jwt(self._jwt_pub_key, uzi_jwt)
         uzi_id = fetched_claims["uzi_id"] if "uzi_id" in fetched_claims else None
+
+        if uzi_id is None:
+            raise UnauthorizedError("Missing uzi_id in JWT claims")
+
         return self._register_service.get_claims_from_register_by_bsn(uzi_id)
