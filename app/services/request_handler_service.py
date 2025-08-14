@@ -67,7 +67,6 @@ class RequestHandlerService:
             raise EntryNotFound("Entry not found in register")
 
         userinfo_data = identity.to_dict()
-        userinfo_data.pop("bsn")
 
         exp_offset = (
             zsm_validity_in_seconds
