@@ -74,7 +74,7 @@ class RequestHandlerService:
             else self.default_zsm_validity_in_seconds
         )
         token = {
-            "iss": self._userinfo_request_jwt_issuer,
+            "iss": self._signed_userinfo_issuer,
             "aud": self._userinfo_request_jwt_audience,
             **userinfo_data,
         }
