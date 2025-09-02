@@ -1809,14 +1809,14 @@ files = [
 
 [[package]]
 name = "types-html5lib"
-version = "1.1.11.20250516"
+version = "1.1.11.20250809"
 description = "Typing stubs for html5lib"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "types_html5lib-1.1.11.20250516-py3-none-any.whl", hash = "sha256:5e407b14b1bd2b9b1107cbd1e2e19d4a0c46d60febd231c7ab7313d7405663c1"},
-    {file = "types_html5lib-1.1.11.20250516.tar.gz", hash = "sha256:65043a6718c97f7d52567cc0cdf41efbfc33b1f92c6c0c5e19f60a7ec69ae720"},
+    {file = "types_html5lib-1.1.11.20250809-py3-none-any.whl", hash = "sha256:e5f48ab670ae4cdeafd88bbc47113d8126dcf08318e0b8d70df26ecc13eca9b6"},
+    {file = "types_html5lib-1.1.11.20250809.tar.gz", hash = "sha256:7976ec7426bb009997dc5e072bca3ed988dd747d0cbfe093c7dfbd3d5ec8bf57"},
 ]
 
 [[package]]
@@ -1836,21 +1836,21 @@ cryptography = "*"
 
 [[package]]
 name = "types-lxml"
-version = "2025.3.30"
+version = "2025.8.25"
 description = "Complete lxml external type annotation"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "types_lxml-2025.3.30-py3-none-any.whl", hash = "sha256:310b0ddf9e2104c8684362445808adf8a2cf41cf102d4ea0d16ced413cc46f66"},
-    {file = "types_lxml-2025.3.30.tar.gz", hash = "sha256:ea4da0d2b61a73e114e14e2dcca1f62671182d80016a483369c553a24ba8f163"},
+    {file = "types_lxml-2025.8.25-py3-none-any.whl", hash = "sha256:d61340e5329e102d3f8d64124e90d50c12c0bfeaa9088d65558279ef4e7138ac"},
+    {file = "types_lxml-2025.8.25.tar.gz", hash = "sha256:79b9f5b1f236f937f14fe3add9dc687bd8d4111ca5df58eb9f1bde1a3b032fd5"},
 ]
 
 [package.dependencies]
 beautifulsoup4 = ">=4.13,<5.0"
 cssselect = ">=1.2,<2.0"
 mypy = {version = ">=1.11,<2.0", optional = true, markers = "extra == \"mypy\""}
-types-html5lib = ">=1.1.11.20241018,<1.2.0.0"
+types-html5lib = ">=1.1.11.20241018,<1.1.11.20250516 || >1.1.11.20250516,<1.2.0.0"
 typing_extensions = {version = ">=4.10,<5.0", markers = "python_version < \"3.13\""}
 
 [package.extras]
@@ -1989,4 +1989,4 @@ lxml = ">=3.8"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "3b6002596bf5263703cc7ff5f03d73ec4adb98c95b12d963260d5f155568ded3"
+content-hash = "8ef2fb5c88e107e023d65f9d52d8d0c86c6572c645938514ab3493cd8d94b52b"
