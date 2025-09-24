@@ -7,16 +7,15 @@ from packaging.version import parse as version_parse
 from app.config import config
 from app.models.identity import Identity
 from app.models.relation import Relation
-from app.services.jwt_service import JwtService
+from app.services.jwt_service import JWTService
 from app.services.request_handler_service import RequestHandlerService
 from app.saml.artifact_response_factory import ArtifactResponseFactory
 from app.saml.metadata import IdPMetadata, SPMetadata
 from app.services.register_service import RegisterService
 from app.utils import (
-    file_content_raise_if_none,
-    kid_from_certificate,
     load_jwk,
     json_from_file,
+    load_certificate_with_jwk_from_path,
 )
 
 
@@ -49,12 +48,10 @@ session_result_jwt_issuer = config.get("app", "session_result_jwt_issuer")
 session_result_jwt_audience = config.get("app", "session_result_jwt_audience")
 
 jwt_crt_path = config.get("app", "jwt_crt_path")
-jwt_crt_content = file_content_raise_if_none(jwt_crt_path)
-
 jwt_priv_key = load_jwk(config.get("app", "jwt_priv_key_path"))
-jwt_pub_key = load_jwk(config.get("app", "jwt_pub_key_path"))
+jwt_certificate = load_certificate_with_jwk_from_path(jwt_crt_path)
 
-max_crt_path = load_jwk(config.get("app", "max_crt_path"))
+userinfo_request_jwt_pub_key = load_jwk(config.get("app", "max_crt_path"))
 
 login_controller_session_url = config.get("app", "login_controller_session_url")
 
@@ -84,9 +81,16 @@ saml_sp_metadata_ = SPMetadata(
 ####
 ## Services
 ####
-jwt_service = JwtService(
-    jwt_priv_key=jwt_priv_key,
-    crt_kid=kid_from_certificate(jwt_crt_content),
+jwt_service = JWTService(
+    issuer=session_result_jwt_issuer,
+    signing_private_key=jwt_priv_key,
+    signing_certificate=jwt_certificate,
+)
+
+zsm_signed_userinfo_jwt_service = JWTService(
+    issuer=signed_userinfo_issuer,
+    signing_private_key=jwt_priv_key,
+    signing_certificate=jwt_certificate,
 )
 
 artifact_response_factory_ = ArtifactResponseFactory(
@@ -116,14 +120,12 @@ request_handler_service_ = RequestHandlerService(
     artifact_response_factory=artifact_response_factory_,
     userinfo_request_jwt_issuer=userinfo_request_jwt_issuer,
     userinfo_request_jwt_audience=userinfo_request_jwt_audience,
-    signed_userinfo_issuer=signed_userinfo_issuer,
-    session_result_jwt_issuer=session_result_jwt_issuer,
+    userinfo_request_jwt_pub_key=userinfo_request_jwt_pub_key,
     session_result_jwt_audience=session_result_jwt_audience,
     login_controller_session_url=login_controller_session_url,
-    max_crt_path=max_crt_path,
     default_zsm_validity_in_days=DEFAULT_ZSM_VALIDITY_IN_DAYS,
-    jwt_pub_key=jwt_pub_key,
     allow_plain_uzi_id=allow_plain_uzi_id_,
+    zsm_signed_userinfo_jwt_service=zsm_signed_userinfo_jwt_service,
     jwt_service=jwt_service,
     register_service=register_service_,
 )

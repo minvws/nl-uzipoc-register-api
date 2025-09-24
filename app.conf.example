@@ -8,8 +8,7 @@ session_result_jwt_audience = nl-uzi-login-controller
 signed_userinfo_issuer = max
 
 jwt_priv_key_path = secrets/nl-uzipoc-register-api.key
-# Pub key to validate Signed UZI ID's
-jwt_pub_key_path = secrets/nl-uzipoc-register-api.pub
+# The pubkey of the cert is also used to validate the ZSM Signed UZI ID's
 jwt_crt_path = secrets/nl-uzipoc-register-api.crt
 
 max_crt_path = secrets/nl-rdo-max-private.crt
