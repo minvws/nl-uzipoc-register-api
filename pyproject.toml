@@ -31,20 +31,20 @@ build-backend = "poetry.core.masonry.api"
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-black = "^25.11.0"
-pylint = "^4.0.3"
-bandit = "^1.8.6"
-mypy = "^1.18.2"
+black = "^25.12.0"
+pylint = "^4.0.4"
+bandit = "^1.9.2"
+mypy = "^1.19.0"
 autoflake = "^2.3.1"
 freezegun = "^1.5.5"
-pytest = "^9.0.1"
+pytest = "^9.0.2"
 pytest-cov = "^7.0.0"
 pytest-mock = "^3.15.1"
 types-python-dateutil = "^2.9.0.20251115"
 types-requests = "^2.32.4.20250913"
 types-jwcrypto = "^1.5.0.20251102"
 httpx = "^0.28.1"
-types-lxml = {extras = ["mypy"], version = "^2025.8.25"}
+types-lxml = {extras = ["mypy"], version = "^2025.11.25"}
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
